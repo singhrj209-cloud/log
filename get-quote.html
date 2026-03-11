@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>SinghRj Transport | Get a Quote</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700;800&display=swap');
+    body{font-family:Manrope,sans-serif;overflow-x:hidden;background:radial-gradient(circle at 95% 0,#ecfeff 0,#f8fafc 45%,#eef2ff 100%);color:#0f172a;line-height:1.55;letter-spacing:.01em}
+    h1,h2,h3,h4,.logo{font-family:Sora,sans-serif}
+    .glass-nav{background:transparent}
+    .animate-on-scroll{opacity:0;transform:translateY(28px) scale(.98);transition:.8s}
+    .animate-visible{opacity:1;transform:translateY(0) scale(1)}
+    .mobile-menu{max-height:0;overflow:hidden;opacity:0;transition:.35s}
+    .mobile-menu.open{max-height:320px;opacity:1}
+    .sidebar{position:fixed;top:0;left:0;height:100vh;width:280px;background:#0b1328;color:#e2e8f0;transform:translateX(-100%);transition:.35s;z-index:60;box-shadow:20px 0 50px -30px rgba(2,6,23,.8)}
+    .sidebar.open{transform:translateX(0)}
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(2,6,23,.55);opacity:0;pointer-events:none;transition:.35s;z-index:55}
+    .sidebar-overlay.open{opacity:1;pointer-events:auto}
+    .sidebar a{display:block;padding:.8rem 1.25rem;border-radius:.4rem;color:#e2e8f0}
+    .sidebar a:hover{background:rgba(56,189,248,.12);color:#7dd3fc}
+    .sidebar-title{letter-spacing:.2em;color:#7dd3fc}
+    .topbar{background:#0b1a2b;color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,.2)}
+    .nav-wrap{background:rgba(7,18,35,.86);border:1px solid rgba(148,163,184,.22);backdrop-filter:blur(10px)}
+
+    .hero{position:relative;height:100vh;min-height:100vh;overflow:hidden;isolation:isolate;padding-top:6rem}
+    .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(95deg,rgba(4,13,29,.9) 0%,rgba(4,13,29,.77) 55%,rgba(4,13,29,.35) 100%);z-index:-1}
+    .hero-slider{position:absolute;inset:0;z-index:-2}
+    .hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.07);animation:heroFade 12s infinite}
+    .hero-slide:nth-child(1){background-image:url('image/hero1.png');animation-delay:0s}
+    .hero-slide:nth-child(2){background-image:url('image/hero2.png');animation-delay:4s}
+    .hero-slide:nth-child(3){background-image:url('image/hero3.png');animation-delay:8s}
+    @keyframes heroFade{0%{opacity:0;transform:scale(1.06)}8%,33%{opacity:1;transform:scale(1.01)}36%,100%{opacity:0;transform:scale(1.06)}}
+    .hero-cut{position:absolute;left:0;right:0;bottom:-1px;height:86px;clip-path:polygon(0 60%,100% 0,100% 100%,0 100%);background:#0284c7}
+    .hero-badge{color:#38bdf8;letter-spacing:.18em;font-size:.72rem;font-weight:800;text-transform:uppercase}
+
+    .form-shell{background:#fff;border:1px solid rgba(14,165,233,.42);box-shadow:0 30px 60px -42px rgba(15,23,42,.45)}
+    .form-panel{background:linear-gradient(160deg,#f8fafc,#f0f9ff);border:1px solid rgba(14,165,233,.25)}
+    .input{width:100%;border:1px solid #cbd5e1;border-radius:.85rem;padding:.8rem .95rem;background:#fff;transition:.25s}
+    .input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.18)}
+    .label{font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.42rem;display:block}
+    .pill{border:1px solid #bae6fd;background:#f0f9ff;border-radius:.8rem;padding:.7rem .85rem;font-size:.88rem;font-weight:700;color:#075985}
+    .price-card{background:linear-gradient(140deg,#0f172a,#0c4a6e 55%,#0284c7);color:#fff;position:relative;overflow:hidden}
+    .price-card::before{content:'';position:absolute;width:280px;height:280px;border-radius:999px;right:-90px;top:-90px;background:radial-gradient(circle,rgba(125,211,252,.55),rgba(125,211,252,0))}
+    .btn-quote{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;transition:.35s}
+    .btn-quote:hover{transform:translateY(-3px);box-shadow:0 14px 30px -16px rgba(14,165,233,.7)}
+
+    .service-chip{background:#fff;border:1px solid rgba(14,165,233,.35);transition:.3s}
+    .service-chip.active{background:linear-gradient(130deg,#0ea5e9,#06b6d4);color:#fff;border-color:#0284c7;box-shadow:0 10px 22px -16px rgba(14,165,233,.8)}
+
+    .test-wrap{overflow:hidden}
+    .test-track{display:flex;gap:1rem;width:max-content;animation:slideLeft 26s linear infinite}
+    .test-wrap:hover .test-track{animation-play-state:paused}
+    @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .test-card{width:min(84vw,340px);background:#fff;border:1px solid #e2e8f0;box-shadow:0 20px 35px -28px rgba(15,23,42,.55)}
+    .avatar{width:54px;height:54px;object-fit:cover;border-radius:999px;border:2px solid #0ea5e9}
+
+    @media (max-width:1024px){.hero{height:100vh;min-height:100vh;padding-top:5.6rem}.hero::after{background:linear-gradient(180deg,rgba(4,13,29,.88),rgba(4,13,29,.75))}.hero-cut{height:62px}}
+    @media (max-width:768px){.hero{height:50vh;min-height:50vh;padding-top:5.6rem}.hero-copy{text-align:center}.hero-copy h1,.hero-copy p{margin-inline:auto}.test-track{animation-duration:20s}}
+  </style>
+  <style>\n/* Hero override from index.html */
+.hero{position:relative;height:100vh;min-height:100vh;overflow:hidden;isolation:isolate;padding-top:10rem}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(95deg,rgba(4,13,29,.88) 0%,rgba(4,13,29,.76) 55%,rgba(4,13,29,.34) 100%);z-index:-1}
+.hero-slider{position:absolute;inset:0;z-index:-2}
+.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.06);animation:heroFade 12s infinite}
+    .hero-slide:nth-child(1){background-image:url('image/hero1.png');animation-delay:0s}
+    .hero-slide:nth-child(2){background-image:url('image/hero2.png');animation-delay:4s}
+    .hero-slide:nth-child(3){background-image:url('image/hero3.png');animation-delay:8s}
+    @keyframes heroFade{0%{opacity:0;transform:scale(1.06)}8%,33%{opacity:1;transform:scale(1.01)}36%,100%{opacity:0;transform:scale(1.06)}}
+.hero-truck{filter:drop-shadow(0 30px 35px rgba(2,6,23,.6));height:300px;object-fit:contain}
+@media (min-width:640px){.hero-truck{height:400px}}
+@media (min-width:768px){.hero-truck{height:500px}}
+@media (min-width:1024px){.hero-truck{height:600px}}
+.hero-cut{position:absolute;left:0;right:0;bottom:-1px;height:90px;clip-path:polygon(0 58%,100% 0,100% 100%,0 100%);background:#0284c7}
+.hero-badge{color:#38bdf8;letter-spacing:.18em;font-size:.72rem;font-weight:800;text-transform:uppercase}
+.hero-cta{background:#0ea5e9}
+.hero-cta:hover{background:#0284c7}
+.hero-ghost{border:1px solid rgba(203,213,225,.65)}
+.hero-ghost:hover{background:#fff;color:#0f172a}
+@media (max-width:1024px){.hero{height:100vh;min-height:100vh;padding-top:8.7rem}.hero::after{background:linear-gradient(180deg,rgba(4,13,29,.88),rgba(4,13,29,.74))}.hero-cut{height:62px}}
+@media (max-width:768px){.hero{height:60vh;min-height:60vh;padding-top:3rem}.hero-copy{text-align:center}.hero-copy .hero-badge{display:block;text-align:center}.hero-copy h1,.hero-copy p{margin-inline:auto}.hero-actions{justify-content:center}}\n  </style>\n</head>
+<body>
+      <header class="fixed w-full z-50 glass-nav">
+    <div class="topbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 hidden md:flex items-center justify-between text-[11px] tracking-wide">
+        <p><i class="fa-solid fa-location-dot text-sky-500 mr-2"></i>60 Applecroft road, Luton (LU2 8BD)</p>
+        <div class="flex items-center gap-5">
+          <a href="tel:+447438282122" class="hover:text-white"><i class="fa-solid fa-phone text-sky-500 mr-2"></i>+44 7438 282122</a>
+          <a href="mailto:info@singhrjtransport.com" class="hover:text-white"><i class="fa-solid fa-envelope text-sky-500 mr-2"></i>info@singhrjtransport.com</a>
+        </div>
+      </div>
+    </div>
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+      <div class="nav-wrap rounded-md px-4 md:px-5 py-3 flex justify-between items-center relative flex-nowrap">
+        <a href="index.html" class="logo text-lg sm:text-xl font-extrabold text-white flex items-center gap-2 whitespace-nowrap"><i class="fas fa-plane-departure text-sky-500"></i>SINGHRJ <span class="text-slate-200">TRANSPORT</span></a>
+        <div class="hidden md:flex gap-6 text-[11px] font-bold uppercase tracking-[.16em] text-slate-100 whitespace-nowrap">
+          <a href="index.html" class="hover:text-sky-400">Home</a>
+          <a href="about.html" class="hover:text-sky-400">About</a>
+          <a href="services.html" class="hover:text-sky-400">Service</a>
+          <a href="get-quote.html" class="hover:text-sky-400">Book Now</a>
+          <a href="blog-resources.html" class="hover:text-sky-400">Blog</a>
+          <a href="faq.html" class="hover:text-sky-400">FAQ</a>
+          <a href="pricing-plans.html" class="hover:text-sky-400">Pricing Plan</a>
+          <a href="contact.html" class="hover:text-sky-400">Contact</a>
+          <a href="shipment-tracking.html" class="hover:text-sky-400">Tracking</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="sidebar-btn" class="text-white text-lg border border-slate-600/60 rounded-md px-3 py-2 hover:border-sky-400" aria-label="Open Sidebar"><i class="fas fa-bars-staggered"></i></button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- SIDEBAR START -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="flex items-center justify-between px-5 py-5 border-b border-slate-700/60">
+      <span class="sidebar-title text-xs font-bold uppercase">Quick Menu</span>
+      <button id="sidebar-close" class="text-slate-300 hover:text-white" aria-label="Close Sidebar"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="px-4 py-4 space-y-1 text-sm font-semibold">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html">Service</a>
+      <a href="get-quote.html">Book Now</a>
+      <a href="blog-resources.html">Blog</a>
+      <a href="faq.html">FAQ</a>
+      <a href="pricing-plans.html">Pricing Plan</a>
+      <a href="contact.html">Contact</a>
+      <a href="shipment-tracking.html">Tracking</a>
+    </nav>
+  </aside>
+  <!-- SIDEBAR END -->
+
+  
+
+  
+
+  
+
+  <section class="hero flex items-center">
+    <div class="hero-slider"><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="grid md:grid-cols-[1fr_1.2fr] lg:grid-cols-[1fr_1.8fr] gap-8 items-center">
+        <div class="hero-copy text-white">
+          <span class="hero-badge mb-3 inline-block">We Specialize In The Transportation</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight max-w-xl">Focused on aviation and energy.</h1>
+          <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">We move heavy and critical cargo with speed, safety, and reliable scheduling across regional and global routes.</p>
+          <div class="hero-actions flex flex-wrap gap-4">
+            <a href="#services" class="hero-cta text-white px-6 py-3 rounded-sm font-bold text-sm">View Services</a>
+            <a href="#contact" class="hero-ghost text-white px-6 py-3 rounded-sm font-bold text-sm transition">Talk to Expert</a>
+          </div>
+        </div>
+        <div class="relative mt-6 lg:mt-0 hidden md:block">
+          <img src="image/truck.png" alt="Truck" class="hero-truck w-full max-w-none mx-auto lg:ml-auto">
+          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-2 bg-white text-slate-900 px-4 py-2 text-[10px] sm:text-xs font-bold rounded-sm shadow-lg hidden sm:block">FAST TRANSPORT SERVICE AGENCY</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cut"></div>
+  </section>
+
+
+  <section id='quote-form' class='py-24'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='text-center mb-12 animate-on-scroll'>
+        <h2 class='text-4xl font-extrabold'>Get a Quote</h2>
+        <p class='text-slate-600 mt-3'>Fill out shipment information to generate an estimated price instantly.</p>
+      </div>
+
+      <div class='form-shell rounded-3xl p-6 sm:p-10 animate-on-scroll'>
+        <div class='grid lg:grid-cols-3 gap-8'>
+          <form id='quoteForm' class='lg:col-span-2 grid sm:grid-cols-2 gap-5'>
+            <div>
+              <label class='label'>Pickup Location</label>
+              <input id='pickup' class='input' type='text' placeholder='City or postcode' required>
+            </div>
+            <div>
+              <label class='label'>Delivery Location</label>
+              <input id='delivery' class='input' type='text' placeholder='City or postcode' required>
+            </div>
+            <div>
+              <label class='label'>Package Weight (kg)</label>
+              <input id='weight' class='input' type='number' min='1' value='25' required>
+            </div>
+            <div>
+              <label class='label'>Package Type</label>
+              <select id='packageType' class='input'>
+                <option value='document'>Document</option>
+                <option value='box' selected>Box</option>
+                <option value='pallet'>Pallet</option>
+                <option value='fragile'>Fragile Goods</option>
+              </select>
+            </div>
+
+            <div class='sm:col-span-2'>
+              <label class='label'>Delivery Type</label>
+              <div class='grid grid-cols-2 gap-3'>
+                <button type='button' class='service-chip active rounded-xl p-3 font-bold' data-delivery='standard'>Standard</button>
+                <button type='button' class='service-chip rounded-xl p-3 font-bold' data-delivery='express'>Express</button>
+              </div>
+              <input type='hidden' id='deliveryType' value='standard'>
+            </div>
+
+            <div>
+              <label class='label'>Full Name</label>
+              <input id='name' class='input' type='text' placeholder='Your name' required>
+            </div>
+            <div>
+              <label class='label'>Phone Number</label>
+              <input id='phone' class='input' type='tel' placeholder='+44 ...' required>
+            </div>
+            <div class='sm:col-span-2'>
+              <label class='label'>Email Address</label>
+              <input id='email' class='input' type='email' placeholder='name@company.com' required>
+            </div>
+
+            <div class='sm:col-span-2 mt-2'>
+              <button type='submit' class='btn-quote w-full rounded-xl py-4 font-bold text-lg'>Submit Quote Request</button>
+            </div>
+          </form>
+
+          <aside class='form-panel rounded-2xl p-5 sm:p-6'>
+            <div class='price-card rounded-2xl p-6 mb-5'>
+              <p class='text-xs uppercase tracking-[.2em] text-cyan-200 font-bold mb-2 relative z-10'>Instant Estimate</p>
+              <p class='text-4xl font-extrabold relative z-10' id='priceOutput'>GBP 74.00</p>
+              <p class='text-sm text-cyan-100 mt-2 relative z-10' id='etaOutput'>Estimated transit: 2-3 business days</p>
+            </div>
+            <div class='grid gap-3'>
+              <div class='pill'>Pickup: <span id='pickupOut'>Not set</span></div>
+              <div class='pill'>Delivery: <span id='deliveryOut'>Not set</span></div>
+              <div class='pill'>Weight: <span id='weightOut'>25 kg</span></div>
+              <div class='pill'>Service: <span id='serviceOut'>Standard</span></div>
+            </div>
+            <p class='text-xs text-slate-500 mt-4'>Estimate is indicative and subject to route conditions, customs requirements, and cargo handling needs.</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class='py-24 bg-white'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='text-center mb-12 animate-on-scroll'><h2 class='text-4xl font-extrabold'>What Our Clients Say</h2><p class='text-slate-600 mt-3'>Horizontal sliding testimonials with client images.</p></div>
+      <div class='test-wrap'>
+        <div class='test-track pb-4' id='testimonials-track'>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80' alt='Medical cargo'><p class='italic text-slate-600 mb-4'>"Handled fragile medical equipment with precision and perfect timing."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80' alt='Mark'><div><p class='font-bold'>Mark Thompson</p><p class='text-xs text-slate-500'>MedCorp</p></div></div></article>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=900&q=80' alt='Express'><p class='italic text-slate-600 mb-4'>"Reliable road deliveries with clear, proactive updates."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80' alt='Sarah'><div><p class='font-bold'>Sarah Jenkins</p><p class='text-xs text-slate-500'>Retail Owner</p></div></div></article>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=900&q=80' alt='Freight'><p class='italic text-slate-600 mb-4'>"Great pricing and dependable long-haul coordination."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80' alt='David'><div><p class='font-bold'>David O\'Connell</p><p class='text-xs text-slate-500'>TechOne</p></div></div></article>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=900&q=80' alt='Warehouse'><p class='italic text-slate-600 mb-4'>"Dispatch coordination is smooth and consistently on time."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1542204625-de293a8e95ec?auto=format&fit=crop&w=300&q=80' alt='Emma'><div><p class='font-bold'>Emma Clarke</p><p class='text-xs text-slate-500'>Flow Commerce</p></div></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class='bg-slate-950 text-white pt-20 pb-10'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16'>
+        <div><h2 class='text-2xl font-bold mb-6'>SINGHRJ <span class='text-cyan-400'>TRANSPORT</span></h2><p class='text-slate-400 text-sm leading-relaxed mb-6'>Reliable logistics with transparent execution and measurable service quality.</p></div>
+        <div><h4 class='text-lg font-bold mb-6 border-b border-slate-800 pb-2'>Quick Links</h4><ul class='space-y-4 text-slate-400'><li><a href='index.html'>Home</a></li><li><a href='about.html'>About</a></li><li><a href='services.html'>Services</a></li><li><a href='get-quote.html'>Quote</a></li></ul></div>
+        <div><h4 class='text-lg font-bold mb-6 border-b border-slate-800 pb-2'>Quote Inputs</h4><ul class='space-y-4 text-slate-400'><li>Pickup & Delivery</li><li>Weight & Package Type</li><li>Standard or Express</li><li>Contact Details</li></ul></div>
+        <div><h4 class='text-lg font-bold mb-6 border-b border-slate-800 pb-2'>Contact</h4><ul class='space-y-4 text-slate-400'><li>+44 7438 282122</li><li>info@singhrjtransport.com</li><li>Luton, UK</li></ul></div>
+      </div>
+      <div class='border-t border-slate-800 pt-8 text-center text-slate-500 text-sm'><p>&copy; 2026 SinghRj Transport. All rights reserved.</p></div>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries)=>entries.forEach((e)=>e.isIntersecting&&e.target.classList.add('animate-visible')),{threshold:.12});
+    document.querySelectorAll('.animate-on-scroll').forEach((el)=>observer.observe(el));    
+    
+
+    const track=document.getElementById('testimonials-track'); if(track){track.innerHTML += track.innerHTML;}
+
+    const deliveryButtons=document.querySelectorAll('[data-delivery]');
+    const deliveryTypeInput=document.getElementById('deliveryType');
+
+    const defaultPricing = {
+      base: 32,
+      perKg: 1.4,
+      expressMultiplier: 1.4,
+      type: {
+        document: { factor: 0.9, perKg: 0.7 },
+        box: { factor: 1, perKg: 1.4 },
+        pallet: { factor: 1.45, perKg: 1.8 },
+        fragile: { factor: 1.35, perKg: 1.7 }
+      }
+    };
+    let pricingConfig = null;
+
+    async function loadPricing(){
+      try{
+        const res = await fetch('http://localhost:5000/api/pricing');
+        if(res.ok){ pricingConfig = await res.json(); }
+      }catch(err){
+        pricingConfig = null;
+      }
+    }
+
+    function calcPrice(){
+      const pricing = pricingConfig || defaultPricing;
+      const weight=Math.max(1,Number(document.getElementById('weight').value)||1);
+      const type=document.getElementById('packageType').value;
+      const deliveryType=deliveryTypeInput.value;
+
+      const typeCfg = (pricing.type && pricing.type[type]) || {};
+      const base = Number(pricing.base) || 32;
+      const perKg = Number(typeCfg.perKg) || Number(pricing.perKg) || 1.4;
+      const typeFactor = Number(typeCfg.factor) || 1;
+      const expressMultiplier = Number(pricing.expressMultiplier) || 1.4;
+
+      let subtotal=(base + weight*perKg) * typeFactor;
+      if(deliveryType==='express'){subtotal*=expressMultiplier;}
+
+      const finalPrice=Math.round(subtotal*100)/100;
+      document.getElementById('priceOutput').textContent='GBP ' + finalPrice.toFixed(2);
+      document.getElementById('etaOutput').textContent=deliveryType==='express' ? 'Estimated transit: 24-48 hours' : 'Estimated transit: 2-3 business days';
+
+      document.getElementById('pickupOut').textContent=document.getElementById('pickup').value || 'Not set';
+      document.getElementById('deliveryOut').textContent=document.getElementById('delivery').value || 'Not set';
+      document.getElementById('weightOut').textContent=weight + ' kg';
+      document.getElementById('serviceOut').textContent=deliveryType==='express' ? 'Express' : 'Standard';
+    }
+
+    deliveryButtons.forEach((button)=>button.addEventListener('click',()=>{
+      deliveryButtons.forEach((b)=>b.classList.remove('active'));
+      button.classList.add('active');
+      deliveryTypeInput.value=button.dataset.delivery;
+      calcPrice();
+    }));
+
+    ['pickup','delivery','weight','packageType'].forEach((id)=>{
+      document.getElementById(id).addEventListener('input',calcPrice);
+      document.getElementById(id).addEventListener('change',calcPrice);
+    });
+
+    document.getElementById('quoteForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      calcPrice();
+      const payload={
+        name:document.getElementById('name').value.trim(),
+        phone:document.getElementById('phone').value.trim(),
+        email:document.getElementById('email').value.trim(),
+        address:`${document.getElementById('pickup').value.trim()} -> ${document.getElementById('delivery').value.trim()}`,
+        service:document.getElementById('deliveryType').value,
+        weight:document.getElementById('weight').value + ' kg',
+        pickupDate:new Date().toISOString().slice(0,10)
+      };
+      try{
+        await fetch('http://localhost:5000/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        alert('Quote request submitted successfully. Our team will contact you shortly.');
+      }catch(err){
+        alert('Failed to submit quote. Please try again.');
+      }
+    });
+
+    loadPricing().then(calcPrice);
+    const sidebarBtn=document.getElementById('sidebar-btn');
+    const sidebar=document.getElementById('sidebar');
+    const sidebarOverlay=document.getElementById('sidebar-overlay');
+    const sidebarClose=document.getElementById('sidebar-close');
+    const closeSidebar=()=>{sidebar.classList.remove('open');sidebarOverlay.classList.remove('open');};
+    if(sidebarBtn){sidebarBtn.addEventListener('click',()=>{sidebar.classList.add('open');sidebarOverlay.classList.add('open');});}
+    if(sidebarOverlay){sidebarOverlay.addEventListener('click',closeSidebar);}
+    if(sidebarClose){sidebarClose.addEventListener('click',closeSidebar);}
+    if(sidebar){sidebar.querySelectorAll('a').forEach((a)=>a.addEventListener('click',closeSidebar));}  </script>
+</body>
+</html>
+
+
+
+

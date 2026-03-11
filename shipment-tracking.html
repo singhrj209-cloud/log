@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SinghRj Transport | Shipment Tracking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700;800&display=swap');
+    body{font-family:Manrope,sans-serif;overflow-x:hidden;background:radial-gradient(circle at 95% 0,#ecfeff 0,#f8fafc 45%,#eef2ff 100%);color:#0f172a;line-height:1.55;letter-spacing:.01em}
+    h1,h2,h3,h4,.logo{font-family:Sora,sans-serif}
+    .glass-nav{background:transparent}
+    .animate-on-scroll{opacity:0;transform:translateY(28px) scale(.98);transition:.8s}
+    .animate-visible{opacity:1;transform:translateY(0) scale(1)}
+    .mobile-menu{max-height:0;overflow:hidden;opacity:0;transition:.35s}
+    .mobile-menu.open{max-height:320px;opacity:1}
+    .sidebar{position:fixed;top:0;left:0;height:100vh;width:280px;background:#0b1328;color:#e2e8f0;transform:translateX(-100%);transition:.35s;z-index:60;box-shadow:20px 0 50px -30px rgba(2,6,23,.8)}
+    .sidebar.open{transform:translateX(0)}
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(2,6,23,.55);opacity:0;pointer-events:none;transition:.35s;z-index:55}
+    .sidebar-overlay.open{opacity:1;pointer-events:auto}
+    .sidebar a{display:block;padding:.8rem 1.25rem;border-radius:.4rem;color:#e2e8f0}
+    .sidebar a:hover{background:rgba(56,189,248,.12);color:#7dd3fc}
+    .sidebar-title{letter-spacing:.2em;color:#7dd3fc}
+    .topbar{background:#0b1a2b;color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,.2)}
+    .nav-wrap{background:rgba(7,18,35,.86);border:1px solid rgba(148,163,184,.22);backdrop-filter:blur(10px)}
+
+    .hero{position:relative;height:100vh;min-height:100vh;overflow:hidden;isolation:isolate;padding-top:10rem}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(95deg,rgba(4,13,29,.88) 0%,rgba(4,13,29,.76) 55%,rgba(4,13,29,.34) 100%);z-index:-1}
+    .hero-slider{position:absolute;inset:0;z-index:-2}
+    .hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.06);animation:heroFade 12s infinite}
+    .hero-slide:nth-child(1){background-image:url('image/hero1.png');animation-delay:0s}
+    .hero-slide:nth-child(2){background-image:url('image/hero2.png');animation-delay:4s}
+    .hero-slide:nth-child(3){background-image:url('image/hero3.png');animation-delay:8s}
+    @keyframes heroFade{0%{opacity:0;transform:scale(1.06)}8%,33%{opacity:1;transform:scale(1.01)}36%,100%{opacity:0;transform:scale(1.06)}}
+    .hero-cut{position:absolute;left:0;right:0;bottom:-1px;height:90px;clip-path:polygon(0 58%,100% 0,100% 100%,0 100%);background:#0284c7}
+    .hero-badge{color:#38bdf8;letter-spacing:.18em;font-size:.72rem;font-weight:800;text-transform:uppercase}
+    .hero-cta{background:#0ea5e9}
+    .hero-cta:hover{background:#0284c7}
+    .hero-ghost{border:1px solid rgba(203,213,225,.65)}
+    .hero-ghost:hover{background:#fff;color:#0f172a}
+    .hero-truck{filter:drop-shadow(0 30px 35px rgba(2,6,23,.6));height:300px;object-fit:contain}
+    @media (min-width:640px){.hero-truck{height:400px}}
+    @media (min-width:768px){.hero-truck{height:500px}}
+    @media (min-width:1024px){.hero-truck{height:600px}}
+
+    .track-shell{background:#fff;border:1px solid rgba(14,165,233,.4);box-shadow:0 30px 60px -42px rgba(15,23,42,.45)}
+    .timeline{position:relative}
+    .timeline::before{content:"";position:absolute;left:17px;top:8px;bottom:8px;width:3px;background:linear-gradient(180deg,#bae6fd,#0ea5e9,#22d3ee);border-radius:99px}
+    .step{position:relative;padding-left:3.2rem;margin-bottom:1.1rem}
+    .step:last-child{margin-bottom:0}
+    .dot{position:absolute;left:7px;top:.2rem;width:22px;height:22px;border-radius:999px;border:3px solid #bae6fd;background:#e2e8f0;z-index:2;transition:.35s}
+    .step.done .dot{background:linear-gradient(140deg,#0ea5e9,#22d3ee);border-color:#0ea5e9;box-shadow:0 0 0 5px rgba(14,165,233,.18)}
+    .step.current .dot{background:linear-gradient(140deg,#0284c7,#0ea5e9);border-color:#0369a1;animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(14,165,233,.5)}70%{box-shadow:0 0 0 10px rgba(14,165,233,0)}}
+    .status-chip{background:#f0f9ff;border:1px solid #7dd3fc;color:#075985}
+
+    .stat-card{background:linear-gradient(170deg,#fff,#f8fafc);border:1px solid rgba(14,165,233,.35);transition:.35s}
+    .stat-card:hover{transform:translateY(-6px);box-shadow:0 20px 34px -24px rgba(14,165,233,.5)}
+
+    .test-wrap{overflow:hidden}
+    .test-track{display:flex;gap:1rem;width:max-content;animation:slideLeft 26s linear infinite}
+    .test-wrap:hover .test-track{animation-play-state:paused}
+    @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .test-card{width:min(84vw,340px);background:#fff;border:1px solid #e2e8f0;box-shadow:0 20px 35px -28px rgba(15,23,42,.55)}
+    .avatar{width:54px;height:54px;object-fit:cover;border-radius:999px;border:2px solid #0ea5e9}
+
+    .cta{background:linear-gradient(125deg,#0f172a,#0c4a6e 48%,#0ea5e9);position:relative;overflow:hidden}
+    .cta:before,.cta:after{content:"";position:absolute;border-radius:999px}
+    .cta:before{width:320px;height:320px;left:-110px;bottom:-110px;background:radial-gradient(circle,rgba(34,211,238,.55),rgba(34,211,238,0))}
+    .cta:after{width:360px;height:360px;right:-130px;top:-120px;background:radial-gradient(circle,rgba(56,189,248,.35),rgba(56,189,248,0))}
+
+    @media (max-width:1024px){.hero{height:100vh;min-height:100vh;padding-top:8.7rem}.hero::after{background:linear-gradient(180deg,rgba(4,13,29,.88),rgba(4,13,29,.74))}.hero-cut{height:62px}}
+    @media (max-width:768px){.hero{height:60vh;min-height:60vh;padding-top:3rem}.hero-copy{text-align:center}.hero-copy .hero-badge{display:block;text-align:center}.hero-copy h1,.hero-copy p{margin-inline:auto}.hero-actions{justify-content:center}.test-track{animation-duration:20s}.timeline::before{left:13px}.step{padding-left:2.5rem}.dot{left:3px}}
+  </style>
+</head>
+<body>
+  <header class="fixed w-full z-50 glass-nav">
+    <div class="topbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 hidden md:flex items-center justify-between text-[11px] tracking-wide">
+        <p><i class="fa-solid fa-location-dot text-sky-500 mr-2"></i>60 Applecroft road, Luton (LU2 8BD)</p>
+        <div class="flex items-center gap-5">
+          <a href="tel:+447438282122" class="hover:text-white"><i class="fa-solid fa-phone text-sky-500 mr-2"></i>+44 7438 282122</a>
+          <a href="mailto:info@singhrjtransport.com" class="hover:text-white"><i class="fa-solid fa-envelope text-sky-500 mr-2"></i>info@singhrjtransport.com</a>
+        </div>
+      </div>
+    </div>
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+      <div class="nav-wrap rounded-md px-4 md:px-5 py-3 flex justify-between items-center relative flex-nowrap">
+        <a href="index.html" class="logo text-lg sm:text-xl font-extrabold text-white flex items-center gap-2 whitespace-nowrap"><i class="fas fa-plane-departure text-sky-500"></i>SINGHRJ <span class="text-slate-200">TRANSPORT</span></a>
+        <div class="hidden md:flex gap-6 text-[11px] font-bold uppercase tracking-[.16em] text-slate-100 whitespace-nowrap">
+          <a href="index.html" class="hover:text-sky-400">Home</a>
+          <a href="about.html" class="hover:text-sky-400">About</a>
+          <a href="services.html" class="hover:text-sky-400">Service</a>
+          <a href="get-quote.html" class="hover:text-sky-400">Book Now</a>
+          <a href="blog-resources.html" class="hover:text-sky-400">Blog</a>
+          <a href="faq.html" class="hover:text-sky-400">FAQ</a>
+          <a href="pricing-plans.html" class="hover:text-sky-400">Pricing Plan</a>
+          <a href="contact.html" class="hover:text-sky-400">Contact</a>
+          <a href="shipment-tracking.html" class="hover:text-sky-400">Tracking</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="sidebar-btn" class="text-white text-lg border border-slate-600/60 rounded-md px-3 py-2 hover:border-sky-400" aria-label="Open Sidebar"><i class="fas fa-bars-staggered"></i></button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="flex items-center justify-between px-5 py-5 border-b border-slate-700/60">
+      <span class="sidebar-title text-xs font-bold uppercase">Quick Menu</span>
+      <button id="sidebar-close" class="text-slate-300 hover:text-white" aria-label="Close Sidebar"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="px-4 py-4 space-y-1 text-sm font-semibold">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html">Service</a>
+      <a href="get-quote.html">Book Now</a>
+      <a href="blog-resources.html">Blog</a>
+      <a href="faq.html">FAQ</a>
+      <a href="pricing-plans.html">Pricing Plan</a>
+      <a href="contact.html">Contact</a>
+      <a href="shipment-tracking.html">Tracking</a>
+    </nav>
+  </aside>
+
+  <section class="hero flex items-center">
+    <div class="hero-slider"><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="grid md:grid-cols-[1fr_1.2fr] gap-8 items-center">
+        <div class="hero-copy text-white">
+          <span class="hero-badge mb-3 inline-block">Track Your Shipment</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight max-w-xl">Real-time visibility on every mile.</h1>
+          <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">Enter your tracking ID to view ETA, current location, and delivery confirmation in seconds.</p>
+          <div class="hero-actions flex flex-wrap gap-4">
+            <a href="#track" class="hero-cta text-white px-6 py-3 rounded-sm font-bold text-sm">Track Shipment</a>
+            <a href="get-quote.html" class="hero-ghost text-white px-6 py-3 rounded-sm font-bold text-sm transition">Create New Shipment</a>
+          </div>
+        </div>
+        <div class="relative mt-6 lg:mt-0 hidden md:block">
+          <img src="image/truck.png" alt="Truck" class="hero-truck w-full max-w-none mx-auto lg:ml-auto">
+        </div>
+      </div>
+    </div>
+    <div class="hero-cut"></div>
+  </section>
+
+  <section id="track" class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1.2fr_.8fr] gap-10 items-start">
+      <div class="track-shell rounded-3xl p-8 sm:p-10 animate-on-scroll">
+        <h2 class="text-2xl sm:text-3xl font-extrabold mb-3">Track a Shipment</h2>
+        <p class="text-slate-600 mb-6">Use your tracking ID to see live status updates.</p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <input id="tracking-id" type="text" placeholder="Enter Tracking ID (e.g., SRJ-2048)" class="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400">
+          <button id="track-btn" class="bg-sky-500 text-white font-bold rounded-xl px-6 py-3 hover:bg-sky-600">Track</button>
+        </div>
+        <div class="flex flex-wrap gap-3 mt-5">
+          <button class="sample-id text-xs font-semibold px-3 py-2 rounded-full border border-slate-200 hover:border-sky-300" data-id="SRJ-2048">SRJ-2048</button>
+          <button class="sample-id text-xs font-semibold px-3 py-2 rounded-full border border-slate-200 hover:border-sky-300" data-id="SRJ-1187">SRJ-1187</button>
+          <button class="sample-id text-xs font-semibold px-3 py-2 rounded-full border border-slate-200 hover:border-sky-300" data-id="SRJ-3302">SRJ-3302</button>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 mt-8">
+          <div class="stat-card rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-slate-400 mb-2">Current Location</p>
+            <p id="current-location" class="font-bold">In Transit</p>
+          </div>
+          <div class="stat-card rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-slate-400 mb-2">ETA</p>
+            <p id="eta" class="font-bold">-</p>
+          </div>
+          <div class="stat-card rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-slate-400 mb-2">Delivery Confirmation</p>
+            <p id="confirmation" class="font-bold">Pending</p>
+          </div>
+          <div class="stat-card rounded-2xl p-4">
+            <p class="text-xs font-bold uppercase text-slate-400 mb-2">Overall Status</p>
+            <p id="overall-status" class="font-bold">Pending</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-sm animate-on-scroll" id="timeline">
+        <h3 class="text-xl font-extrabold mb-5">Delivery Timeline</h3>
+        <div class="step done"><span class="dot"></span><p class="font-bold">Shipment Booked</p><p class="text-sm text-slate-500">Order confirmed and assigned.</p></div>
+        <div class="step done"><span class="dot"></span><p class="font-bold">Picked Up</p><p class="text-sm text-slate-500">Cargo collected from origin.</p></div>
+        <div class="step current"><span class="dot"></span><p class="font-bold">In Transit</p><p class="text-sm text-slate-500">Shipment moving between hubs.</p></div>
+        <div class="step"><span class="dot"></span><p class="font-bold">Out for Delivery</p><p class="text-sm text-slate-500">Final mile in progress.</p></div>
+        <div class="step"><span class="dot"></span><p class="font-bold">Delivered</p><p class="text-sm text-slate-500">Shipment delivered and confirmed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12 animate-on-scroll"><h2 class="text-4xl font-extrabold">What Our Clients Say</h2><p class="text-slate-600 mt-3">Reviews from our customers.</p></div>
+      <div class="test-wrap">
+        <div class="test-track pb-4" id="testimonials-track">
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"modern fleet friendly drivers five stars"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">ER</div><div><p class="font-bold">Elite Reviews</p><p class="text-xs text-slate-500">Local Guide - 155 reviews - 993 photos - a month ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Loaders/fork lift drivers were brilliant and nice guys. Office staff were good except for an Eastern European lady who has a serious attitude problem and so rude"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">MA</div><div><p class="font-bold">Martin Aiken</p><p class="text-xs text-slate-500">Local Guide - 116 reviews - 5 months ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Very quick unloading and friendly Warehouse staff 5 star service."</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">OP</div><div><p class="font-bold">Oleksandr Panasiuk</p><p class="text-xs text-slate-500">1 review - 2 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Very quick unloading and friendly Warehouse staff 5 star service"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">NL</div><div><p class="font-bold">nathan lawson</p><p class="text-xs text-slate-500">Local Guide - 10 reviews - 6 photos - 2 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Verey road warehouse is brilliant lovely staff very kind and helpful quick service!!! Thank you"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">JH</div><div><p class="font-bold">Jay Hal</p><p class="text-xs text-slate-500">2 reviews - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Slow reaction from staff.makes you think you are invisible."</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">FD</div><div><p class="font-bold">Florin D</p><p class="text-xs text-slate-500">Local Guide - 202 reviews - 309 photos - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"NOT TO BAD OF A COMPANY"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">CH</div><div><p class="font-bold">CHOOK</p><p class="text-xs text-slate-500">Local Guide - 72 reviews - 42 photos - edited 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"The best transport company in the world"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">BM</div><div><p class="font-bold">Ben Machado</p><p class="text-xs text-slate-500">2 reviews - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"It's a bit dated"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">MB</div><div><p class="font-bold">martyn broughton</p><p class="text-xs text-slate-500">Local Guide - 292 reviews - 94 photos - 3 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Fast and Nice."</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">CH</div><div><p class="font-bold">Costin Hemes</p><p class="text-xs text-slate-500">Local Guide - 12 reviews - 21 photos - 5 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Easy to deal with"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">DL</div><div><p class="font-bold">dennis lownds</p><p class="text-xs text-slate-500">Local Guide - 153 reviews - 121 photos - 5 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Excellent"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">CP</div><div><p class="font-bold">Cornel Pavalache</p><p class="text-xs text-slate-500">Local Guide - 86 reviews - 14 photos - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Crap"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">MP</div><div><p class="font-bold">Matt Porter</p><p class="text-xs text-slate-500">Local Guide - 440 reviews - 5 photos - 9 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Great company, you have to enter from the back from the street, very long waiting time even if you have a booking"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">DB</div><div><p class="font-bold">Daniel Buzner</p><p class="text-xs text-slate-500">Local Guide - 27 reviews - 7 photos - 6 months ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Fast unloading, good team"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">NP</div><div><p class="font-bold">Nihad Pido</p><p class="text-xs text-slate-500">Local Guide - 118 reviews - 178 photos - 3 years ago</p></div></div></article>
+</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="cta rounded-3xl p-8 sm:p-14 text-white text-center animate-on-scroll">
+        <div class="relative z-10">
+          <span class="inline-block px-4 py-2 rounded-full bg-white/15 border border-white/25 text-xs font-bold uppercase tracking-[.2em] mb-4">Need Assistance?</span>
+          <h2 class="text-3xl sm:text-5xl font-extrabold mb-5">Need Help With A Delayed Shipment?</h2>
+          <p class="text-base sm:text-xl text-cyan-100 mb-9 max-w-3xl mx-auto">Our support team is available for route updates, ETA clarification, and urgent issue escalation.</p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="get-quote.html" class="bg-white text-sky-700 px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-100">Create New Shipment</a>
+            <a href="tel:+447438282122" class="bg-slate-900/45 backdrop-blur border border-cyan-200/40 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-900/65">Call Support: +44 7438 282122</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-slate-950 text-white pt-20 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div><h2 class="text-2xl font-bold mb-6">SINGHRJ <span class="text-cyan-400">TRANSPORT</span></h2><p class="text-slate-400 text-sm leading-relaxed mb-6">Reliable logistics with transparent execution and measurable service quality.</p></div>
+        <div><h4 class="text-lg font-bold mb-6 border-b border-slate-800 pb-2">Quick Links</h4><ul class="space-y-4 text-slate-400"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="shipment-tracking.html">Track</a></li></ul></div>
+        <div><h4 class="text-lg font-bold mb-6 border-b border-slate-800 pb-2">Solutions</h4><ul class="space-y-4 text-slate-400"><li>Real-Time Tracking</li><li>Express Dispatch</li><li>Freight Visibility</li><li>Route Monitoring</li></ul></div>
+        <div><h4 class="text-lg font-bold mb-6 border-b border-slate-800 pb-2">Contact</h4><ul class="space-y-4 text-slate-400"><li>+44 7438 282122</li><li>info@singhrjtransport.com</li><li>Luton, UK</li></ul></div>
+      </div>
+      <div class="border-t border-slate-800 pt-8 text-center text-slate-500 text-sm"><p>&copy; 2026 SinghRj Transport. All rights reserved.</p></div>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries)=>entries.forEach((e)=>e.isIntersecting&&e.target.classList.add('animate-visible')),{threshold:.12});
+    document.querySelectorAll('.animate-on-scroll').forEach((el)=>observer.observe(el));
+
+    const track=document.getElementById('testimonials-track'); if(track){track.innerHTML += track.innerHTML;}
+
+    const API_BASE = 'http://localhost:5000/api';
+    const stepMap = {
+      'Shipment Booked': 0,
+      'Picked Up': 1,
+      'In Transit': 2,
+      'Arrived at Hub': 2,
+      'Out for Delivery': 3,
+      'Delivered': 4,
+      'Pending': 0
+    };
+
+    const formatEta = (val) => {
+      if (!val) return '-';
+      const d = new Date(val);
+      if (Number.isNaN(d.getTime())) return val;
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const renderStatus = (data) => {
+      document.querySelectorAll('#timeline .step').forEach((el, i) => {
+        el.classList.remove('done', 'current');
+        if (i < data.step) { el.classList.add('done'); }
+        if (i === data.step) { el.classList.add(data.step === 4 ? 'done' : 'current'); }
+      });
+      document.getElementById('current-location').textContent = data.location;
+      document.getElementById('eta').textContent = data.eta;
+      document.getElementById('confirmation').textContent = data.confirmation;
+      document.getElementById('overall-status').textContent = data.overall;
+    };
+
+    const fetchShipment = async (trackingId) => {
+      const res = await fetch(`${API_BASE}/shipments/${trackingId}`);
+      if (!res.ok) throw new Error('not-found');
+      return res.json();
+    };
+
+    const fetchTimeline = async (trackingId) => {
+      const res = await fetch(`${API_BASE}/shipments/${trackingId}/timeline`);
+      if (!res.ok) return [];
+      return res.json();
+    };
+
+    const trackShipment = async (trackingId) => {
+      const id = trackingId.trim().toUpperCase();
+      if (!id) { alert('Enter a tracking ID'); return; }
+      try {
+        const shipment = await fetchShipment(id);
+        const timeline = await fetchTimeline(id);
+        const latest = timeline[0];
+        const step = stepMap[shipment.status] ?? 0;
+        renderStatus({
+          step,
+          location: latest?.location || shipment.currentLocation || shipment.route || 'In Transit',
+          eta: formatEta(shipment.eta),
+          confirmation: shipment.status === 'Delivered' ? 'Delivered' : 'Pending',
+          overall: shipment.status || 'Pending'
+        });
+      } catch (err) {
+        alert('Tracking ID not found');
+      }
+    };
+
+    const trackBtn = document.getElementById('track-btn');
+    const trackingInput = document.getElementById('tracking-id');
+    if (trackBtn && trackingInput) {
+      trackBtn.addEventListener('click', () => {
+        trackShipment(trackingInput.value);
+      });
+    }
+
+    document.querySelectorAll('.sample-id').forEach((btn) => {
+      if (!trackingInput) return;
+      btn.addEventListener('click', () => {
+        trackingInput.value = btn.dataset.id;
+        trackShipment(btn.dataset.id);
+      });
+    });
+
+    const sidebarBtn=document.getElementById('sidebar-btn');
+    const sidebar=document.getElementById('sidebar');
+    const sidebarOverlay=document.getElementById('sidebar-overlay');
+    const sidebarClose=document.getElementById('sidebar-close');
+    const closeSidebar=()=>{sidebar.classList.remove('open');sidebarOverlay.classList.remove('open');};
+    if(sidebarBtn){sidebarBtn.addEventListener('click',()=>{sidebar.classList.add('open');sidebarOverlay.classList.add('open');});}
+    if(sidebarOverlay){sidebarOverlay.addEventListener('click',closeSidebar);}
+    if(sidebarClose){sidebarClose.addEventListener('click',closeSidebar);}
+    if(sidebar){sidebar.querySelectorAll('a').forEach((a)=>a.addEventListener('click',closeSidebar));}
+  </script>
+</body>
+</html>
+

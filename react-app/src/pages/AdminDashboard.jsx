@@ -1,0 +1,236 @@
+import { useEffect } from 'react';
+import { initAdminCommon, initDashboard } from '../utils/adminPanel';
+
+const styles = `
+
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    :root{--ink:#0f172a;--slate:#1e293b;--sky:#0ea5e9;--aqua:#22d3ee;--mint:#2dd4bf;--surface:#ffffff;--panel:#f8fafc;--line:#e2e8f0;--shadow:0 18px 40px -30px rgba(15,23,42,.45)}
+    *{box-sizing:border-box}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:radial-gradient(circle at top left,#e0f2fe 0,#f8fafc 45%,#eef2ff 100%);color:var(--ink);min-height:100vh}
+    h1,h2,h3,h4,.brand{font-family:'Space Grotesk',sans-serif}
+    .app-shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .sidebar{background:linear-gradient(180deg,#0f172a 0,#0b1f3a 60%,#0b2b4f 100%);color:#e2e8f0;padding:2rem 1.5rem;position:sticky;top:0;height:100vh}
+    .nav-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;border-radius:.8rem;color:#e2e8f0;font-weight:600;font-size:.95rem;transition:.2s}
+    .nav-item:hover{background:rgba(14,165,233,.15);color:#7dd3fc}
+    .nav-active{background:rgba(14,165,233,.2);color:#bae6fd;box-shadow:inset 0 0 0 1px rgba(125,211,252,.3)}
+    .chip{display:inline-flex;align-items:center;gap:.4rem;background:rgba(15,23,42,.12);padding:.4rem .8rem;border-radius:999px;font-weight:600;font-size:.75rem;color:#0f172a}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:1.25rem;padding:1.5rem;box-shadow:var(--shadow)}
+    .stat{background:linear-gradient(135deg,#ffffff 0,#f8fafc 60%,#e0f2fe 100%);border:1px solid rgba(14,165,233,.25)}
+    .stat h3{font-size:2rem;font-weight:700}
+    .table-wrap{border:1px solid var(--line);border-radius:1rem;overflow:hidden;background:var(--surface)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.9rem 1rem;text-align:left;font-size:.9rem}
+    th{background:#f1f5f9;font-weight:700;color:#475569}
+    tr:nth-child(even){background:#f8fafc}
+    .badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .7rem;border-radius:999px;font-size:.75rem;font-weight:700}
+    .badge.sky{background:rgba(14,165,233,.15);color:#0284c7}
+    .badge.green{background:rgba(16,185,129,.15);color:#047857}
+    .badge.orange{background:rgba(249,115,22,.15);color:#c2410c}
+    .badge.gray{background:rgba(100,116,139,.15);color:#475569}
+    .topbar{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+    .search{display:flex;align-items:center;gap:.6rem;background:#ffffff;border:1px solid var(--line);border-radius:999px;padding:.45rem .9rem;min-width:240px}
+    .search input{border:none;outline:none;width:100%;font-size:.9rem}
+    .mobile-toggle{display:none}
+    @media (max-width:1024px){
+      .app-shell{grid-template-columns:1fr}
+      .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:.3s;z-index:50;width:260px}
+      .sidebar.open{transform:translateX(0)}
+      .overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);opacity:0;pointer-events:none;transition:.3s;z-index:40}
+      .overlay.open{opacity:1;pointer-events:auto}
+      .mobile-toggle{display:inline-flex}
+    }
+      /* mobile tweaks */
+    .table-wrap{overflow-x:auto}
+    table{min-width:720px}
+    @media (max-width:640px){
+      .card{padding:1.1rem}
+      .topbar{align-items:flex-start}
+      .topbar .search{width:100%;min-width:0}
+      .topbar .search input{min-width:0}
+      .topbar .flex.items-center.gap-4{flex-wrap:wrap}
+      .topbar .flex.items-center.gap-3{flex-wrap:wrap}
+    }
+
+    
+    
+
+`;
+
+const markup = `
+<div class='overlay' id='overlay'></div>
+  <div class='app-shell'>
+    <aside class='sidebar' id='sidebar'>
+      <div class='flex items-center justify-between mb-10'>
+        <div>
+          <p class='brand text-xl font-bold text-white'>SinghRj Admin</p>
+          <p class='text-xs uppercase tracking-[.3em] text-sky-300 mt-1'>Control Panel</p>
+        </div>
+        <button class='mobile-toggle text-slate-200' id='closeSidebar'><i class='fa-solid fa-xmark text-lg'></i></button>
+      </div>
+      <nav class='space-y-2'>
+        <a class='nav-item nav-active' href='/admin/dashboard'><i class='fa-solid fa-chart-line'></i>Dashboard</a>
+        <a class='nav-item' href='/admin/create-shipment'><i class='fa-solid fa-box'></i>Create Shipment</a>
+        <a class='nav-item' href='/admin/shipments'><i class='fa-solid fa-list-check'></i>Shipment List</a>
+        <a class='nav-item' href='/admin/pricing'><i class='fa-solid fa-tags'></i>Pricing Plan</a>
+        <a class='nav-item' href='/admin/bookings'><i class='fa-solid fa-file-signature'></i>Bookings</a>
+        <a class='nav-item' href='/admin/customers'><i class='fa-solid fa-user-group'></i>Customer Details</a>
+      </nav>
+      <div class='mt-10 p-4 rounded-xl bg-slate-900/40 border border-slate-700/60'>
+        <p class='text-sm font-semibold'>Today Snapshot</p>
+        <p class='text-xs text-slate-300 mt-2'>12 pickups scheduled, 4 delayed alerts.</p>
+      </div>
+      <button id='logoutBtn' class='mt-4 w-full text-left text-sm font-semibold text-slate-200 hover:text-white border border-slate-700/60 rounded-xl px-4 py-3'>Logout</button>
+    </aside>
+
+    <main class='px-6 py-8 lg:px-10'>
+      <div class='topbar mb-8'>
+        <div class='flex items-center gap-3'>
+          <button class='mobile-toggle text-slate-700 border border-slate-200 rounded-lg px-3 py-2' id='openSidebar'><i class='fa-solid fa-bars'></i></button>
+          <div>
+            <p class='text-sm uppercase tracking-[.3em] text-slate-400'>Dashboard</p>
+            <h1 class='text-3xl font-bold'>Shipment Overview</h1>
+          </div>
+        </div>
+        <div class='flex items-center gap-4'>
+          <div class='search'>
+            <i class='fa-solid fa-magnifying-glass text-slate-400 text-sm'></i>
+            <input type='text' placeholder='Search tracking ID'>
+          </div>
+          <div class='flex items-center gap-3 bg-white px-4 py-2 rounded-full border border-slate-200'>
+            <img src='https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=80&q=80' alt='Admin' class='w-8 h-8 rounded-full object-cover'>
+            <div class='text-sm'>
+              <p class='font-semibold leading-tight'>Admin</p>
+              <p class='text-xs text-slate-500'>Operations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class='grid md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8'>
+        <div class='card stat'>
+          <p class='text-sm text-slate-500'>Total Shipments</p>
+          <h3 id='statTotal'>250</h3>
+          <p class='text-xs text-slate-400 mt-2'>All active + completed</p>
+        </div>
+        <div class='card stat'>
+          <p class='text-sm text-slate-500'>In Transit</p>
+          <h3 id='statTransit'>120</h3>
+          <p class='text-xs text-slate-400 mt-2'>Currently moving</p>
+        </div>
+        <div class='card stat'>
+          <p class='text-sm text-slate-500'>Delivered</p>
+          <h3 id='statDelivered'>100</h3>
+          <p class='text-xs text-slate-400 mt-2'>Delivered successfully</p>
+        </div>
+        <div class='card stat'>
+          <p class='text-sm text-slate-500'>Pending</p>
+          <h3 id='statPending'>30</h3>
+          <p class='text-xs text-slate-400 mt-2'>Awaiting pickup</p>
+        </div>
+      </section>
+
+      <section class='grid lg:grid-cols-[1.5fr_1fr] gap-6'>
+        <div class='card'>
+          <div class='flex items-center justify-between mb-4'>
+            <div>
+              <h2 class='text-xl font-bold'>Recent Shipments</h2>
+              <p class='text-sm text-slate-500'>Latest 6 tracking entries</p>
+            </div>
+            <span class='chip'><i class='fa-solid fa-filter'></i>Today</span>
+          </div>
+          <div class='table-wrap'>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tracking ID</th>
+                  <th>Route</th>
+                  <th>Status</th>
+                  <th>ETA</th>
+                </tr>
+              </thead>
+              <tbody id='recentShipmentsBody'>
+                <tr>
+                  <td>HBC001</td>
+                  <td>Chennai ? Trichy</td>
+                  <td><span class='badge sky'>In Transit</span></td>
+                  <td>Mar 12</td>
+                </tr>
+                <tr>
+                  <td>HBC002</td>
+                  <td>Coimbatore ? Madurai</td>
+                  <td><span class='badge green'>Delivered</span></td>
+                  <td>Mar 10</td>
+                </tr>
+                <tr>
+                  <td>HBC003</td>
+                  <td>Salem ? Erode</td>
+                  <td><span class='badge orange'>Out for Delivery</span></td>
+                  <td>Mar 11</td>
+                </tr>
+                <tr>
+                  <td>HBC004</td>
+                  <td>Trichy ? Chennai</td>
+                  <td><span class='badge gray'>Pending</span></td>
+                  <td>Mar 13</td>
+                </tr>
+                <tr>
+                  <td>HBC005</td>
+                  <td>Vellore ? Hosur</td>
+                  <td><span class='badge sky'>In Transit</span></td>
+                  <td>Mar 12</td>
+                </tr>
+                <tr>
+                  <td>HBC006</td>
+                  <td>Tirunelveli ? Chennai</td>
+                  <td><span class='badge green'>Delivered</span></td>
+                  <td>Mar 09</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class='card'>
+          <h2 class='text-xl font-bold mb-4'>Quick Actions</h2>
+          <div class='space-y-4'>
+            <a href='/admin/create-shipment' class='block p-4 rounded-xl border border-slate-200 bg-slate-50 hover:border-sky-300 transition'>
+              <p class='font-semibold'>Create Shipment</p>
+              <p class='text-sm text-slate-500 mt-1'>Generate a new tracking ID.</p>
+            </a>
+            <a href='/admin/pricing' class='block p-4 rounded-xl border border-slate-200 bg-slate-50 hover:border-sky-300 transition'>
+              <p class='font-semibold'>Pricing Plan</p>
+              <p class='text-sm text-slate-500 mt-1'>Update quote calculation rates.</p>
+            </a>
+          </div>
+          <div class='mt-6 p-4 rounded-xl bg-slate-900 text-white'>
+            <p class='text-xs uppercase tracking-[.2em] text-sky-200'>Alerts</p>
+            <p class='text-lg font-semibold mt-2'>4 shipments delayed</p>
+            <p class='text-xs text-slate-300 mt-1'>Check update status queue.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+`;
+
+export default function AdminDashboard() {
+  useEffect(() => {
+    const cleanups = [];
+    cleanups.push(initAdminCommon());
+    cleanups.push(initDashboard());
+    return () => { cleanups.forEach((fn) => { if (typeof fn === 'function') fn(); }); };
+  }, []);
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div dangerouslySetInnerHTML={{ __html: markup }} />
+    </>
+  );
+}
+
+
+
+
+
+

@@ -1,0 +1,174 @@
+import { useEffect } from 'react';
+import { initAdminCommon, initTimeline } from '../utils/adminPanel';
+
+const styles = `
+
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    :root{--ink:#0f172a;--sky:#0ea5e9;--line:#e2e8f0;--shadow:0 18px 40px -30px rgba(15,23,42,.45)}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:radial-gradient(circle at top left,#e0f2fe 0,#f8fafc 45%,#eef2ff 100%);color:var(--ink);min-height:100vh}
+    h1,h2,h3,h4,.brand{font-family:'Space Grotesk',sans-serif}
+    .app-shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .sidebar{background:linear-gradient(180deg,#0f172a 0,#0b1f3a 60%,#0b2b4f 100%);color:#e2e8f0;padding:2rem 1.5rem;position:sticky;top:0;height:100vh}
+    .nav-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;border-radius:.8rem;color:#e2e8f0;font-weight:600;font-size:.95rem;transition:.2s}
+    .nav-item:hover{background:rgba(14,165,233,.15);color:#7dd3fc}
+    .nav-active{background:rgba(14,165,233,.2);color:#bae6fd;box-shadow:inset 0 0 0 1px rgba(125,211,252,.3)}
+    .card{background:#fff;border:1px solid var(--line);border-radius:1.25rem;padding:1.5rem;box-shadow:var(--shadow)}
+    label{font-weight:600;font-size:.85rem;color:#334155}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:.8rem;padding:.7rem .9rem;font-size:.9rem;background:#fff}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#0ea5e9,#22d3ee);color:white;padding:.85rem 1.4rem;border-radius:.8rem;font-weight:700}
+    .timeline{position:relative;padding-left:1.5rem}
+    .timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:#cbd5f5}
+    .timeline-item{position:relative;padding:1rem 1rem 1rem 1.5rem;border:1px solid var(--line);border-radius:1rem;background:#f8fafc;margin-bottom:1rem}
+    .timeline-item::before{content:'';position:absolute;left:-10px;top:1.4rem;width:14px;height:14px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 4px rgba(14,165,233,.2)}
+    .topbar{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+    .mobile-toggle{display:none}
+    @media (max-width:1024px){
+      .app-shell{grid-template-columns:1fr}
+      .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:.3s;z-index:50;width:260px}
+      .sidebar.open{transform:translateX(0)}
+      .overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);opacity:0;pointer-events:none;transition:.3s;z-index:40}
+      .overlay.open{opacity:1;pointer-events:auto}
+      .mobile-toggle{display:inline-flex}
+    }
+      /* mobile tweaks */
+    .table-wrap{overflow-x:auto}
+    table{min-width:720px}
+    @media (max-width:640px){
+      .card{padding:1.1rem}
+      .topbar{align-items:flex-start}
+      .topbar .search{width:100%;min-width:0}
+      .topbar .search input{min-width:0}
+      .topbar .flex.items-center.gap-4{flex-wrap:wrap}
+      .topbar .flex.items-center.gap-3{flex-wrap:wrap}
+    }
+
+    
+    
+
+`;
+
+const markup = `
+<div class='overlay' id='overlay'></div>
+  <div class='app-shell'>
+    <aside class='sidebar' id='sidebar'>
+      <div class='flex items-center justify-between mb-10'>
+        <div>
+          <p class='brand text-xl font-bold text-white'>SinghRj Admin</p>
+          <p class='text-xs uppercase tracking-[.3em] text-sky-300 mt-1'>Control Panel</p>
+        </div>
+        <button class='mobile-toggle text-slate-200' id='closeSidebar'><i class='fa-solid fa-xmark text-lg'></i></button>
+      </div>
+      <nav class='space-y-2'>
+        <a class='nav-item' href='/admin/dashboard'><i class='fa-solid fa-chart-line'></i>Dashboard</a>
+        <a class='nav-item' href='/admin/create-shipment'><i class='fa-solid fa-box'></i>Create Shipment</a>
+        <a class='nav-item' href='/admin/shipments'><i class='fa-solid fa-list-check'></i>Shipment List</a>
+        <a class='nav-item' href='/admin/pricing'><i class='fa-solid fa-tags'></i>Pricing Plan</a>
+        <a class='nav-item' href='/admin/bookings'><i class='fa-solid fa-file-signature'></i>Bookings</a>
+        <a class='nav-item' href='/admin/customers'><i class='fa-solid fa-user-group'></i>Customer Details</a>
+      </nav>
+      <button id='logoutBtn' class='mt-8 w-full text-left text-sm font-semibold text-slate-200 hover:text-white border border-slate-700/60 rounded-xl px-4 py-3'>Logout</button>
+    </aside>
+
+    <main class='px-6 py-8 lg:px-10'>
+      <div class='topbar mb-8'>
+        <div class='flex items-center gap-3'>
+          <button class='mobile-toggle text-slate-700 border border-slate-200 rounded-lg px-3 py-2' id='openSidebar'><i class='fa-solid fa-bars'></i></button>
+          <div>
+            <p class='text-sm uppercase tracking-[.3em] text-slate-400'>Tracking Timeline</p>
+            <h1 class='text-3xl font-bold'>Update Milestones</h1>
+          </div>
+        </div>
+        <div class='flex items-center gap-3 bg-white px-4 py-2 rounded-full border border-slate-200'>
+          <i class='fa-solid fa-location-dot text-sky-500'></i>
+          <p class='text-sm font-semibold'>Customer View Timeline</p>
+        </div>
+      </div>
+
+      <section class='grid lg:grid-cols-[1.1fr_.9fr] gap-6'>
+        <div class='card'>
+          <h2 class='text-xl font-bold mb-6'>Add Timeline Entry</h2>
+          <form id='timelineForm' class='grid gap-5'>
+            <div>
+              <label>Tracking ID</label>
+              <input id='timelineTrackingId' type='text' placeholder='HBC001' value='HBC001'>
+            </div>
+            <div class='grid md:grid-cols-2 gap-4'>
+              <div>
+                <label>Date</label>
+                <input id='timelineDate' type='date' value='2026-03-10'>
+              </div>
+              <div>
+                <label>Location</label>
+                <input id='timelineLocation' type='text' placeholder='Chennai'>
+              </div>
+            </div>
+            <div>
+              <label>Status</label>
+              <select id='timelineStatus'>
+                <option>Shipment Booked</option>
+                <option selected>Picked Up</option>
+                <option>In Transit</option>
+                <option>Arrived at Hub</option>
+                <option>Out for Delivery</option>
+                <option>Delivered</option>
+              </select>
+            </div>
+            <div>
+              <label>Notes</label>
+              <textarea id='timelineNotes' rows='3' placeholder='Pickup completed successfully'></textarea>
+            </div>
+            <button class='btn'><i class='fa-solid fa-plus'></i>Add Timeline Update</button>
+          </form>
+        </div>
+        <div class='card'>
+          <h2 class='text-xl font-bold mb-4'>Latest Timeline</h2>
+          <div id='timelineList' class='timeline'>
+            <div class='timeline-item'>
+              <p class='text-xs uppercase text-slate-400'>10 Mar</p>
+              <p class='font-semibold'>Shipment Picked Up</p>
+              <p class='text-sm text-slate-500'>Chennai</p>
+            </div>
+            <div class='timeline-item'>
+              <p class='text-xs uppercase text-slate-400'>11 Mar</p>
+              <p class='font-semibold'>Arrived at Hub</p>
+              <p class='text-sm text-slate-500'>Trichy</p>
+            </div>
+            <div class='timeline-item'>
+              <p class='text-xs uppercase text-slate-400'>12 Mar</p>
+              <p class='font-semibold'>In Transit</p>
+              <p class='text-sm text-slate-500'>On Route</p>
+            </div>
+            <div class='timeline-item'>
+              <p class='text-xs uppercase text-slate-400'>13 Mar</p>
+              <p class='font-semibold'>Out for Delivery</p>
+              <p class='text-sm text-slate-500'>Madurai</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+`;
+
+export default function AdminTrackingTimeline() {
+  useEffect(() => {
+    const cleanups = [];
+    cleanups.push(initAdminCommon());
+    cleanups.push(initTimeline());
+    return () => { cleanups.forEach((fn) => { if (typeof fn === 'function') fn(); }); };
+  }, []);
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div dangerouslySetInnerHTML={{ __html: markup }} />
+    </>
+  );
+}
+
+
+
+
+
+

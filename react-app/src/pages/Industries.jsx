@@ -1,0 +1,271 @@
+import { useEffect } from 'react';
+import { initScrollAnimations, initTestimonialsTrack, initSidebar } from '../utils/publicUi';
+
+const styles = `
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700;800&display=swap');
+    body{font-family:Manrope,sans-serif;overflow-x:hidden;background:radial-gradient(circle at 95% 0,#ecfeff 0,#f8fafc 45%,#eef2ff 100%);color:#0f172a;line-height:1.55;letter-spacing:.01em}
+    h1,h2,h3,h4,.logo{font-family:Sora,sans-serif}
+    .glass-nav{background:transparent}
+    .animate-on-scroll{opacity:0;transform:translateY(28px) scale(.98);transition:.8s}
+    .animate-visible{opacity:1;transform:translateY(0) scale(1)}
+    .mobile-menu{max-height:0;overflow:hidden;opacity:0;transition:.35s}
+    .mobile-menu.open{max-height:320px;opacity:1}
+    .sidebar{position:fixed;top:0;left:0;height:100vh;width:280px;background:#0b1328;color:#e2e8f0;transform:translateX(-100%);transition:.35s;z-index:60;box-shadow:20px 0 50px -30px rgba(2,6,23,.8)}
+    .sidebar.open{transform:translateX(0)}
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(2,6,23,.55);opacity:0;pointer-events:none;transition:.35s;z-index:55}
+    .sidebar-overlay.open{opacity:1;pointer-events:auto}
+    .sidebar a{display:block;padding:.8rem 1.25rem;border-radius:.4rem;color:#e2e8f0}
+    .sidebar a:hover{background:rgba(56,189,248,.12);color:#7dd3fc}
+    .sidebar-title{letter-spacing:.2em;color:#7dd3fc}
+    .topbar{background:#0b1a2b;color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,.2)}
+    .nav-wrap{background:rgba(7,18,35,.86);border:1px solid rgba(148,163,184,.22);backdrop-filter:blur(10px)}
+
+    .hero{position:relative;height:100vh;min-height:100vh;overflow:hidden;isolation:isolate;padding-top:10rem}
+    .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(95deg,rgba(4,13,29,.9) 0%,rgba(4,13,29,.77) 55%,rgba(4,13,29,.35) 100%);z-index:-1}
+    .hero-slider{position:absolute;inset:0;z-index:-2}
+    .hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.07);animation:heroFade 12s infinite}
+    .hero-slide:nth-child(1){background-image:url('image/hero1.png');animation-delay:0s}
+    .hero-slide:nth-child(2){background-image:url('image/hero2.png');animation-delay:4s}
+    .hero-slide:nth-child(3){background-image:url('image/hero3.png');animation-delay:8s}
+    @keyframes heroFade{0%{opacity:0;transform:scale(1.06)}8%,33%{opacity:1;transform:scale(1.01)}36%,100%{opacity:0;transform:scale(1.06)}}
+    .hero-cut{position:absolute;left:0;right:0;bottom:-1px;height:86px;clip-path:polygon(0 60%,100% 0,100% 100%,0 100%);background:#0284c7}
+    .hero-badge{color:#38bdf8;letter-spacing:.18em;font-size:.72rem;font-weight:800;text-transform:uppercase}
+
+    .industry{position:relative;overflow:hidden;background:linear-gradient(165deg,#fff,#f8fafc);border:1px solid rgba(14,165,233,.45);box-shadow:0 25px 45px -38px rgba(15,23,42,.55);transition:.45s}
+    .industry::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(14,165,233,.12),rgba(34,211,238,.05),rgba(255,255,255,0));opacity:0;transition:.45s}
+    .industry:hover{transform:translateY(-10px) scale(1.01);box-shadow:0 32px 50px -32px rgba(14,165,233,.45)}
+    .industry:hover::before{opacity:1}
+    .icon-wrap{width:62px;height:62px;border-radius:1rem;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0ea5e9,#06b6d4);color:#fff;font-size:1.6rem;box-shadow:0 12px 24px -10px rgba(14,165,233,.7)}
+    .impact{background:#e0f2fe;border:1px solid #7dd3fc;color:#075985}
+    .orb{position:absolute;border-radius:999px;filter:blur(2px);opacity:.45;animation:float 7s ease-in-out infinite}
+    .orb.one{width:150px;height:150px;right:-30px;top:-30px;background:radial-gradient(circle,rgba(14,165,233,.45),rgba(14,165,233,0))}
+    .orb.two{width:120px;height:120px;left:-20px;bottom:-30px;background:radial-gradient(circle,rgba(34,211,238,.45),rgba(34,211,238,0));animation-delay:.8s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+    .test-wrap{overflow:hidden}
+    .test-track{display:flex;gap:1rem;width:max-content;animation:slideLeft 26s linear infinite}
+    .test-wrap:hover .test-track{animation-play-state:paused}
+    @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .test-card{width:min(84vw,340px);background:#fff;border:1px solid #e2e8f0;box-shadow:0 20px 35px -28px rgba(15,23,42,.55)}
+    .avatar{width:54px;height:54px;object-fit:cover;border-radius:999px;border:2px solid #0ea5e9}
+
+    .cta{background:linear-gradient(125deg,#0f172a,#0c4a6e 48%,#0ea5e9);position:relative;overflow:hidden}
+    .cta:before,.cta:after{content:'';position:absolute;border-radius:999px}
+    .cta:before{width:320px;height:320px;left:-110px;bottom:-110px;background:radial-gradient(circle,rgba(34,211,238,.55),rgba(34,211,238,0))}
+    .cta:after{width:360px;height:360px;right:-130px;top:-120px;background:radial-gradient(circle,rgba(56,189,248,.35),rgba(56,189,248,0))}
+    @media (max-width:1024px){.hero{height:100vh;min-height:100vh;padding-top:8.7rem}.hero::after{background:linear-gradient(180deg,rgba(4,13,29,.88),rgba(4,13,29,.74))}.hero-cut{height:62px}}
+    @media (max-width:768px){.hero{height:60vh;min-height:60vh;padding-top:3rem}.hero-copy{text-align:center}.hero-copy .hero-badge{display:block;text-align:center}.hero-copy h1,.hero-copy p{margin-inline:auto}.hero-actions{justify-content:center}.process-shell:before{display:none}.test-track{animation-duration:20s}.quote-box{max-width:360px;margin-inline:auto}}
+
+`;
+
+const markup = `
+<header class="fixed w-full z-50 glass-nav">
+    <div class="topbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 hidden md:flex items-center justify-between text-[11px] tracking-wide">
+        <p><i class="fa-solid fa-location-dot text-sky-500 mr-2"></i>60 Applecroft road, Luton (LU2 8BD)</p>
+        <div class="flex items-center gap-5">
+          <a href="tel:+447438282122" class="hover:text-white"><i class="fa-solid fa-phone text-sky-500 mr-2"></i>+44 7438 282122</a>
+          <a href="mailto:info@singhrjtransport.com" class="hover:text-white"><i class="fa-solid fa-envelope text-sky-500 mr-2"></i>info@singhrjtransport.com</a>
+        </div>
+      </div>
+    </div>
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+      <div class="nav-wrap rounded-md px-4 md:px-5 py-3 flex justify-between items-center relative flex-nowrap">
+        <a href="/" class="logo text-lg sm:text-xl font-extrabold text-white flex items-center gap-2 whitespace-nowrap"><i class="fas fa-plane-departure text-sky-500"></i>SINGHRJ <span class="text-slate-200">TRANSPORT</span></a>
+        <div class="hidden md:flex gap-6 text-[11px] font-bold uppercase tracking-[.16em] text-slate-100 whitespace-nowrap">
+          <a href="/" class="hover:text-sky-400">Home</a>
+          <a href="/about" class="hover:text-sky-400">About</a>
+          <a href="/services" class="hover:text-sky-400">Service</a>
+          <a href="/get-quote" class="hover:text-sky-400">Book Now</a>
+          <a href="/blog-resources" class="hover:text-sky-400">Blog</a>
+          <a href="/faq" class="hover:text-sky-400">FAQ</a>
+          <a href="/pricing-plans" class="hover:text-sky-400">Pricing Plan</a>
+          <a href="/contact" class="hover:text-sky-400">Contact</a>
+          <a href="/shipment-tracking" class="hover:text-sky-400">Tracking</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="sidebar-btn" class="text-white text-lg border border-slate-600/60 rounded-md px-3 py-2 hover:border-sky-400" aria-label="Open Sidebar"><i class="fas fa-bars-staggered"></i></button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- SIDEBAR START -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="flex items-center justify-between px-5 py-5 border-b border-slate-700/60">
+      <span class="sidebar-title text-xs font-bold uppercase">Quick Menu</span>
+      <button id="sidebar-close" class="text-slate-300 hover:text-white" aria-label="Close Sidebar"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="px-4 py-4 space-y-1 text-sm font-semibold">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/services">Service</a>
+      <a href="/get-quote">Book Now</a>
+      <a href="/blog-resources">Blog</a>
+      <a href="/faq">FAQ</a>
+      <a href="/pricing-plans">Pricing Plan</a>
+      <a href="/contact">Contact</a>
+      <a href="/shipment-tracking">Tracking</a>
+    </nav>
+  </aside>
+  <!-- SIDEBAR END -->
+
+  
+
+  
+
+  
+
+  <section class="hero flex items-center">
+    <div class="hero-slider"><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="grid md:grid-cols-[1fr_1.2fr] lg:grid-cols-[1fr_1.8fr] gap-8 items-center">
+        <div class="hero-copy text-white">
+          <span class="hero-badge mb-3 inline-block">We Specialize In The Transportation</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight max-w-xl">Focused on aviation and energy.</h1>
+          <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">We move heavy and critical cargo with speed, safety, and reliable scheduling across regional and global routes.</p>
+          <div class="hero-actions flex flex-wrap gap-4">
+            <a href="#services" class="hero-cta text-white px-6 py-3 rounded-sm font-bold text-sm">View Services</a>
+            <a href="#contact" class="hero-ghost text-white px-6 py-3 rounded-sm font-bold text-sm transition">Talk to Expert</a>
+          </div>
+        </div>
+        <div class="relative mt-6 lg:mt-0 hidden md:block">
+          <img src="image/truck.png" alt="Truck" class="hero-truck w-full max-w-none mx-auto lg:ml-auto">
+          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-2 bg-white text-slate-900 px-4 py-2 text-[10px] sm:text-xs font-bold rounded-sm shadow-lg hidden sm:block">FAST TRANSPORT SERVICE AGENCY</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cut"></div>
+  </section>
+
+
+  <section class='py-24'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='text-center mb-14 animate-on-scroll'>
+        <h2 class='text-4xl font-extrabold'>Industry-Focused Logistics Capabilities</h2>
+        <p class='text-slate-600 mt-3'>Operational models designed for unique cargo, compliance, and delivery requirements.</p>
+      </div>
+
+      <div class='grid md:grid-cols-2 xl:grid-cols-3 gap-6'>
+        <article class='industry rounded-2xl p-6 animate-on-scroll'>
+          <span class='orb one'></span><span class='orb two'></span>
+          <div class='icon-wrap mb-4 relative z-10'><i class='fa-solid fa-cart-shopping'></i></div>
+          <h3 class='text-2xl font-extrabold mb-2 relative z-10'>Ecommerce Logistics</h3>
+          <p class='text-slate-600 mb-4 relative z-10'>Fast dispatch cycles, parcel-level tracking, and scalable peak-season handling for online sellers and marketplaces.</p>
+          <div class='impact rounded-lg px-3 py-2 text-sm font-semibold relative z-10'>Supports same-day and next-day fulfillment models.</div>
+        </article>
+
+        <article class='industry rounded-2xl p-6 animate-on-scroll' style='transition-delay:.08s'>
+          <span class='orb one'></span><span class='orb two'></span>
+          <div class='icon-wrap mb-4 relative z-10'><i class='fa-solid fa-store'></i></div>
+          <h3 class='text-2xl font-extrabold mb-2 relative z-10'>Retail Distribution</h3>
+          <p class='text-slate-600 mb-4 relative z-10'>Store replenishment planning, cross-dock optimization, and route consistency to reduce stock-out risk.</p>
+          <div class='impact rounded-lg px-3 py-2 text-sm font-semibold relative z-10'>Improves shelf availability across multi-store networks.</div>
+        </article>
+
+        <article class='industry rounded-2xl p-6 animate-on-scroll' style='transition-delay:.16s'>
+          <span class='orb one'></span><span class='orb two'></span>
+          <div class='icon-wrap mb-4 relative z-10'><i class='fa-solid fa-industry'></i></div>
+          <h3 class='text-2xl font-extrabold mb-2 relative z-10'>Manufacturing Supply Chain</h3>
+          <p class='text-slate-600 mb-4 relative z-10'>Inbound material flow, just-in-time line feeding, and dependable outbound freight for finished products.</p>
+          <div class='impact rounded-lg px-3 py-2 text-sm font-semibold relative z-10'>Reduces production downtime and line interruptions.</div>
+        </article>
+
+        <article class='industry rounded-2xl p-6 animate-on-scroll'>
+          <span class='orb one'></span><span class='orb two'></span>
+          <div class='icon-wrap mb-4 relative z-10'><i class='fa-solid fa-pills'></i></div>
+          <h3 class='text-2xl font-extrabold mb-2 relative z-10'>Pharmaceutical Logistics</h3>
+          <p class='text-slate-600 mb-4 relative z-10'>Sensitive shipment handling, strict documentation, and process discipline for regulated healthcare consignments.</p>
+          <div class='impact rounded-lg px-3 py-2 text-sm font-semibold relative z-10'>Maintains compliance and product integrity on route.</div>
+        </article>
+
+        <article class='industry rounded-2xl p-6 animate-on-scroll' style='transition-delay:.08s'>
+          <span class='orb one'></span><span class='orb two'></span>
+          <div class='icon-wrap mb-4 relative z-10'><i class='fa-solid fa-car-side'></i></div>
+          <h3 class='text-2xl font-extrabold mb-2 relative z-10'>Automotive Transport</h3>
+          <p class='text-slate-600 mb-4 relative z-10'>Parts movement, aftermarket distribution, and route stability for dealer and service center demand.</p>
+          <div class='impact rounded-lg px-3 py-2 text-sm font-semibold relative z-10'>Ensures timely spare-parts availability and uptime.</div>
+        </article>
+
+        <article class='industry rounded-2xl p-6 animate-on-scroll' style='transition-delay:.16s'>
+          <span class='orb one'></span><span class='orb two'></span>
+          <div class='icon-wrap mb-4 relative z-10'><i class='fa-solid fa-boxes-packing'></i></div>
+          <h3 class='text-2xl font-extrabold mb-2 relative z-10'>FMCG Delivery</h3>
+          <p class='text-slate-600 mb-4 relative z-10'>High-frequency route planning, batch-level monitoring, and efficient delivery drops for fast-moving goods.</p>
+          <div class='impact rounded-lg px-3 py-2 text-sm font-semibold relative z-10'>Supports volume throughput with reliable turnaround.</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class='py-24 bg-white'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='text-center mb-12 animate-on-scroll'><h2 class='text-4xl font-extrabold'>What Our Clients Say</h2><p class='text-slate-600 mt-3'>Horizontal sliding testimonials with client images.</p></div>
+      <div class='test-wrap'>
+        <div class='test-track pb-4' id='testimonials-track'>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80' alt='Medical cargo'><p class='italic text-slate-600 mb-4'>"Handled fragile medical equipment with precision and perfect timing."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80' alt='Mark'><div><p class='font-bold'>Mark Thompson</p><p class='text-xs text-slate-500'>MedCorp</p></div></div></article>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=900&q=80' alt='Express'><p class='italic text-slate-600 mb-4'>"Reliable road deliveries with clear, proactive updates."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80' alt='Sarah'><div><p class='font-bold'>Sarah Jenkins</p><p class='text-xs text-slate-500'>Retail Owner</p></div></div></article>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=900&q=80' alt='Freight'><p class='italic text-slate-600 mb-4'>"Great pricing and dependable long-haul coordination."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80' alt='David'><div><p class='font-bold'>David O\'Connell</p><p class='text-xs text-slate-500'>TechOne</p></div></div></article>
+          <article class='test-card rounded-2xl p-6'><img class='w-full h-40 rounded-xl object-cover mb-5' src='https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=900&q=80' alt='Warehouse'><p class='italic text-slate-600 mb-4'>"Dispatch coordination is smooth and consistently on time."</p><div class='flex items-center gap-3'><img class='avatar' src='https://images.unsplash.com/photo-1542204625-de293a8e95ec?auto=format&fit=crop&w=300&q=80' alt='Emma'><div><p class='font-bold'>Emma Clarke</p><p class='text-xs text-slate-500'>Flow Commerce</p></div></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class='py-20'>
+    <div class='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='cta rounded-3xl p-8 sm:p-14 text-white text-center animate-on-scroll'>
+        <div class='relative z-10'>
+          <span class='inline-block px-4 py-2 rounded-full bg-white/15 border border-white/25 text-xs font-bold uppercase tracking-[.2em] mb-4'>Partner With Us</span>
+          <h2 class='text-3xl sm:text-5xl font-extrabold mb-5'>Need Logistics Built For Your Industry?</h2>
+          <p class='text-base sm:text-xl text-cyan-100 mb-9 max-w-3xl mx-auto'>Our operations team can design a dedicated delivery framework for your cargo profile and SLA targets.</p>
+          <div class='flex flex-col sm:flex-row justify-center gap-4'>
+            <a href='/get-quote' class='bg-white text-sky-700 px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-100'>Get Industry Quote</a>
+            <a href='tel:+447438282122' class='bg-slate-900/45 backdrop-blur border border-cyan-200/40 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-900/65'>Call Expert: +44 7438 282122</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class='bg-slate-950 text-white pt-20 pb-10'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16'>
+        <div><h2 class='text-2xl font-bold mb-6'>SINGHRJ <span class='text-cyan-400'>TRANSPORT</span></h2><p class='text-slate-400 text-sm leading-relaxed mb-6'>Reliable logistics with transparent execution and measurable service quality.</p></div>
+        <div><h4 class='text-lg font-bold mb-6 border-b border-slate-800 pb-2'>Quick Links</h4><ul class='space-y-4 text-slate-400'><li><a href='/'>Home</a></li><li><a href='/about'>About</a></li><li><a href='/services'>Services</a></li><li><a href='/industries'>Industries</a></li></ul></div>
+        <div><h4 class='text-lg font-bold mb-6 border-b border-slate-800 pb-2'>Industries</h4><ul class='space-y-4 text-slate-400'><li>Ecommerce</li><li>Retail</li><li>Pharma</li><li>Automotive</li></ul></div>
+        <div><h4 class='text-lg font-bold mb-6 border-b border-slate-800 pb-2'>Contact</h4><ul class='space-y-4 text-slate-400'><li>+44 7438 282122</li><li>info@singhrjtransport.com</li><li>Luton, UK</li></ul></div>
+      </div>
+      <div class='border-t border-slate-800 pt-8 text-center text-slate-500 text-sm'><p>&copy; 2026 SinghRj Transport. All rights reserved.</p></div>
+    </div>
+  </footer>
+`;
+
+export default function Industries() {
+  useEffect(() => {
+    const cleanups = [];
+    cleanups.push(initScrollAnimations());
+    cleanups.push(initTestimonialsTrack());
+    cleanups.push(initSidebar());
+    return () => { cleanups.forEach((fn) => { if (typeof fn === 'function') fn(); }); };
+  }, []);
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div dangerouslySetInnerHTML={{ __html: markup }} />
+    </>
+  );
+}
+
+
+
+
+
+
+
+
+
+

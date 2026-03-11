@@ -1,0 +1,360 @@
+import { useEffect } from 'react';
+import { initScrollAnimations, initWhyAnimations, initTestimonialsTrack, initSidebar } from '../utils/publicUi';
+
+const styles = `
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700;800&display=swap');
+    body{font-family:Manrope,sans-serif;overflow-x:hidden;background:radial-gradient(circle at 95% 0,#ecfeff 0,#f8fafc 45%,#eef2ff 100%);color:#0f172a;line-height:1.55;letter-spacing:.01em}
+    h1,h2,h3,h4,.logo{font-family:Sora,sans-serif}
+    .glass-nav{background:transparent}
+    .animate-on-scroll{opacity:0;transform:translateY(28px);transition:.8s}
+    .animate-visible{opacity:1;transform:none}
+    .mobile-menu{max-height:0;overflow:hidden;opacity:0;transition:.35s}
+    .mobile-menu.open{max-height:300px;opacity:1}
+    .sidebar{position:fixed;top:0;left:0;height:100vh;width:280px;background:#0b1328;color:#e2e8f0;transform:translateX(-100%);transition:.35s;z-index:60;box-shadow:20px 0 50px -30px rgba(2,6,23,.8)}
+    .sidebar.open{transform:translateX(0)}
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(2,6,23,.55);opacity:0;pointer-events:none;transition:.35s;z-index:55}
+    .sidebar-overlay.open{opacity:1;pointer-events:auto}
+    .sidebar a{display:block;padding:.8rem 1.25rem;border-radius:.4rem;color:#e2e8f0}
+    .sidebar a:hover{background:rgba(56,189,248,.12);color:#7dd3fc}
+    .sidebar-title{letter-spacing:.2em;color:#7dd3fc}
+    .topbar{background:#0b1a2b;color:#cbd5e1;border-bottom:1px solid rgba(148,163,184,.2)}
+    .nav-wrap{background:rgba(7,18,35,.86);border:1px solid rgba(148,163,184,.22);backdrop-filter:blur(10px)}
+    .hero{position:relative;height:100vh;min-height:100vh;overflow:hidden;isolation:isolate;padding-top:10rem}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(95deg,rgba(4,13,29,.88) 0%,rgba(4,13,29,.76) 55%,rgba(4,13,29,.34) 100%);z-index:-1}
+    .hero-slider{position:absolute;inset:0;z-index:-2}
+    .hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.06);animation:heroFade 12s infinite}
+    .hero-slide:nth-child(1){background-image:url('image/hero1.png');animation-delay:0s}
+    .hero-slide:nth-child(2){background-image:url('image/hero2.png');animation-delay:4s}
+    .hero-slide:nth-child(3){background-image:url('image/hero3.png');animation-delay:8s}
+    @keyframes heroFade{0%{opacity:0;transform:scale(1.06)}8%,33%{opacity:1;transform:scale(1.01)}36%,100%{opacity:0;transform:scale(1.06)}}
+    .hero-truck{filter:drop-shadow(0 30px 35px rgba(2,6,23,.6));height:300px;object-fit:contain}
+    @media (min-width:640px){.hero-truck{height:400px}}
+    @media (min-width:768px){.hero-truck{height:500px}}
+    @media (min-width:1024px){.hero-truck{height:600px}}
+    .max-w-10xl{max-width:96rem}
+    .hero-cut{position:absolute;left:0;right:0;bottom:-1px;height:90px;clip-path:polygon(0 58%,100% 0,100% 100%,0 100%);background:#0284c7}
+    .hero-badge{color:#38bdf8;letter-spacing:.18em;font-size:.72rem;font-weight:800;text-transform:uppercase}
+    .hero-cta{background:#0ea5e9}
+    .hero-cta:hover{background:#0284c7}
+    .hero-ghost{border:1px solid rgba(203,213,225,.65)}
+    .hero-ghost:hover{background:#fff;color:#0f172a}
+    .services{background:#fff}
+    .expertise{position:relative;overflow:hidden;background:linear-gradient(120deg,#f8fafc 0%,#eef2ff 55%,#e0f2fe 100%)}
+    .expertise:before{content:"";position:absolute;inset:-120px auto auto -160px;width:420px;height:420px;border-radius:999px;background:radial-gradient(circle,rgba(14,165,233,.25),rgba(14,165,233,0))}
+    .expertise:after{content:"";position:absolute;right:-180px;bottom:-180px;width:520px;height:520px;border-radius:999px;background:radial-gradient(circle,rgba(99,102,241,.2),rgba(99,102,241,0))}
+    .expertise-head{position:relative;z-index:1}
+    .expertise-badge{background:#0f172a;color:#38bdf8;letter-spacing:.22em}
+    .expertise-panel{position:relative;z-index:1;background:rgba(255,255,255,.86);border:1px solid rgba(148,163,184,.35);box-shadow:0 30px 60px -45px rgba(15,23,42,.65);backdrop-filter:blur(8px)}
+    .expertise-card{position:relative;z-index:1;background:linear-gradient(145deg,#0f172a,#0b3a5d 60%,#0ea5e9);color:#f8fafc;border:1px solid rgba(56,189,248,.4);box-shadow:0 30px 60px -40px rgba(2,6,23,.85)}
+    .expertise-card .service-icon{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);color:#e0f2fe}
+    .expertise-stat{background:#0f172a;color:#e2e8f0;border:1px solid rgba(148,163,184,.35)}
+    .expertise-tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#e2e8f0}
+    .service-card{background:linear-gradient(180deg,#ffffff,#f8fafc);border:1px solid rgba(14,165,233,.72);box-shadow:0 0 0 1px rgba(56,189,248,.35),0 0 18px rgba(56,189,248,.22),inset 0 0 14px rgba(56,189,248,.08);transition:.3s}
+    .service-card:hover{transform:translateY(-10px);border-color:rgba(14,165,233,.95);box-shadow:0 0 0 1px rgba(34,211,238,.6),0 0 28px rgba(34,211,238,.34),inset 0 0 18px rgba(34,211,238,.12)}
+    .service-icon{background:linear-gradient(130deg,rgba(14,165,233,.12),rgba(56,189,248,.14));border:1px solid rgba(14,165,233,.35);color:#0284c7}
+    .why{background:linear-gradient(160deg,#020617,#031b2f 52%,#082f49)}
+    .neon-line{border:1px solid rgba(125,211,252,.25);background:rgba(2,6,23,.5);transition:.45s}
+    .neon-line.animate-visible{border-color:rgba(103,232,249,.8);box-shadow:0 0 16px rgba(103,232,249,.36),0 0 30px rgba(103,232,249,.2),inset 0 0 12px rgba(103,232,249,.18)}
+    .neon-line.animate-visible .line-title{color:#a5f3fc;text-shadow:0 0 12px rgba(103,232,249,.95)}
+    .process-shell{position:relative;max-width:74rem;margin-inline:auto}
+    .process-shell:before{content:"";position:absolute;left:6%;right:6%;top:2.1rem;height:2px;background:linear-gradient(90deg,rgba(14,165,233,.2),rgba(14,165,233,.95),rgba(56,189,248,.75));box-shadow:0 0 16px rgba(56,189,248,.4)}
+    .step-card{position:relative;background:linear-gradient(175deg,#fff,#f8fafc);border:1px solid rgba(14,165,233,.7);box-shadow:0 0 0 1px rgba(56,189,248,.32),0 0 20px rgba(56,189,248,.2),inset 0 0 12px rgba(56,189,248,.08);overflow:hidden;transition:.3s}
+    .step-card:hover{transform:translateY(-8px);box-shadow:0 0 0 1px rgba(34,211,238,.55),0 0 28px rgba(34,211,238,.35),inset 0 0 18px rgba(34,211,238,.12)}
+    .step-card::before{content:"";position:absolute;inset:0;background:linear-gradient(140deg,rgba(14,165,233,.12),rgba(56,189,248,.08));opacity:0;transition:.35s}
+    .step-card:hover::before{opacity:1}
+    .step-num{width:3rem;height:3rem;border-radius:.9rem;background:linear-gradient(140deg,#0ea5e9,#22d3ee);box-shadow:0 10px 20px -10px rgba(14,165,233,.9)}
+    .coverage{background:linear-gradient(135deg,#0b1328,#0b3251 60%,#1d4ed8);position:relative;overflow:hidden}
+    .coverage:after{content:"";position:absolute;width:400px;height:400px;border-radius:999px;right:-140px;top:-120px;background:radial-gradient(circle,rgba(34,211,238,.45),rgba(34,211,238,0))}
+    .chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25)}
+    .test-wrap{overflow:hidden}
+    .test-track{display:flex;gap:1rem;width:max-content;animation:slideLeft 26s linear infinite}
+    .test-wrap:hover .test-track{animation-play-state:paused}
+    @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .test-card{width:min(84vw,340px);background:#fff;border:1px solid #e2e8f0;box-shadow:0 20px 35px -28px rgba(15,23,42,.55)}
+    .avatar{width:54px;height:54px;object-fit:cover;border-radius:999px;border:2px solid #0ea5e9}
+    .cta{background:linear-gradient(125deg,#0f172a,#0c4a6e 48%,#0ea5e9);position:relative;overflow:hidden}
+    .cta:before,.cta:after{content:"";position:absolute;border-radius:999px}
+    .cta:before{width:320px;height:320px;left:-110px;bottom:-110px;background:radial-gradient(circle,rgba(34,211,238,.55),rgba(34,211,238,0))}
+    .cta:after{width:360px;height:360px;right:-130px;top:-120px;background:radial-gradient(circle,rgba(56,189,248,.35),rgba(56,189,248,0))}
+    
+    .hero-copy .hero-badge{display:block;text-align:center}.hero-copy h1,.hero-copy p{margin-inline:auto}.hero-actions{justify-content:center}.process-shell:before{display:none}.test-track{animation-duration:20s}.quote-box{max-width:360px;margin-inline:auto}}
+    @media (max-width:1024px){.hero{height:100vh;min-height:100vh;padding-top:8.7rem}.hero::after{background:linear-gradient(180deg,rgba(4,13,29,.88),rgba(4,13,29,.74))}.hero-cut{height:62px}}
+    @media (max-width:768px){.hero{height:60vh;min-height:60vh;padding-top:3rem}.hero-copy{text-align:center}.hero-copy .hero-badge{display:block;text-align:center}.hero-copy h1,.hero-copy p{margin-inline:auto}.hero-actions{justify-content:center}.process-shell:before{display:none}.test-track{animation-duration:20s}.quote-box{max-width:360px;margin-inline:auto}}
+
+`;
+
+const markup = `
+<header class="fixed w-full z-50 glass-nav">
+    <div class="topbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 hidden md:flex items-center justify-between text-[11px] tracking-wide">
+        <p><i class="fa-solid fa-location-dot text-sky-500 mr-2"></i>60 Applecroft road, Luton (LU2 8BD)</p>
+        <div class="flex items-center gap-5">
+          <a href="tel:+447438282122" class="hover:text-white"><i class="fa-solid fa-phone text-sky-500 mr-2"></i>+44 7438 282122</a>
+          <a href="mailto:info@singhrjtransport.com" class="hover:text-white"><i class="fa-solid fa-envelope text-sky-500 mr-2"></i>info@singhrjtransport.com</a>
+        </div>
+      </div>
+    </div>
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+      <div class="nav-wrap rounded-md px-4 md:px-5 py-3 flex justify-between items-center relative flex-nowrap">
+        <a href="/" class="logo text-lg sm:text-xl font-extrabold text-white flex items-center gap-2 whitespace-nowrap"><i class="fas fa-plane-departure text-sky-500"></i>SINGHRJ <span class="text-slate-200">TRANSPORT</span></a>
+        <div class="hidden md:flex gap-6 text-[11px] font-bold uppercase tracking-[.16em] text-slate-100 whitespace-nowrap">
+          <a href="/" class="hover:text-sky-400">Home</a>
+          <a href="/about" class="hover:text-sky-400">About</a>
+          <a href="/services" class="hover:text-sky-400">Service</a>
+          <a href="/get-quote" class="hover:text-sky-400">Book Now</a>
+          <a href="/blog-resources" class="hover:text-sky-400">Blog</a>
+          <a href="/faq" class="hover:text-sky-400">FAQ</a>
+          <a href="/pricing-plans" class="hover:text-sky-400">Pricing Plan</a>
+          <a href="/contact" class="hover:text-sky-400">Contact</a>
+          <a href="/shipment-tracking" class="hover:text-sky-400">Tracking</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="sidebar-btn" class="text-white text-lg border border-slate-600/60 rounded-md px-3 py-2 hover:border-sky-400" aria-label="Open Sidebar"><i class="fas fa-bars-staggered"></i></button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- SIDEBAR START -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="flex items-center justify-between px-5 py-5 border-b border-slate-700/60">
+      <span class="sidebar-title text-xs font-bold uppercase">Quick Menu</span>
+      <button id="sidebar-close" class="text-slate-300 hover:text-white" aria-label="Close Sidebar"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="px-4 py-4 space-y-1 text-sm font-semibold">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/services">Service</a>
+      <a href="/get-quote">Book Now</a>
+      <a href="/blog-resources">Blog</a>
+      <a href="/faq">FAQ</a>
+      <a href="/pricing-plans">Pricing Plan</a>
+      <a href="/contact">Contact</a>
+      <a href="/shipment-tracking">Tracking</a>
+    </nav>
+  </aside>
+  <!-- SIDEBAR END -->
+
+  
+
+  
+
+  
+
+   <section class="hero flex items-center">
+    <div class="hero-slider"><div class="hero-slide"></div><div class="hero-slide"></div><div class="hero-slide"></div></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="grid md:grid-cols-[1fr_1.2fr] lg:grid-cols-[1fr_1.8fr] gap-8 items-center">
+        <div class="hero-copy text-white">
+          <span class="hero-badge mb-3 inline-block">We Specialize In The Transportation</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-5 leading-[1.08] tracking-tight max-w-xl">Focused on aviation and energy.</h1>
+          <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">We move heavy and critical cargo with speed, safety, and reliable scheduling across regional and global routes.</p>
+          <div class="hero-actions flex flex-wrap gap-4">
+            <a href="#services" class="hero-cta text-white px-6 py-3 rounded-sm font-bold text-sm">View Services</a>
+            <a href="#contact" class="hero-ghost text-white px-6 py-3 rounded-sm font-bold text-sm transition">Talk to Expert</a>
+          </div>
+        </div>
+        <div class="relative mt-6 lg:mt-0 hidden md:block">
+          <img src="image/truck.png" alt="Truck" class="hero-truck w-full max-w-none mx-auto lg:ml-auto">
+          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-2 bg-white text-slate-900 px-4 py-2 text-[10px] sm:text-xs font-bold rounded-sm shadow-lg hidden sm:block">FAST TRANSPORT SERVICE AGENCY</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cut"></div>
+  </section>
+
+  <section id="services" class="services expertise py-24 text-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="expertise-head text-center mb-16 animate-on-scroll">
+        <span class="expertise-badge text-[11px] font-extrabold uppercase px-4 py-2 rounded-full inline-flex items-center gap-2">Our Expertise</span>
+        <h2 class="text-4xl sm:text-5xl font-extrabold mt-4">Specialized Logistics Services</h2>
+        <p class="text-slate-600 mt-4 max-w-3xl mx-auto">Road-focused logistics built for speed, safety, and measurable performance across UK distribution lanes.</p>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-10 items-stretch">
+        <div class="expertise-panel p-8 sm:p-10 rounded-3xl animate-on-scroll">
+          <h3 class="text-2xl sm:text-3xl font-extrabold mb-5 text-slate-900">Road Services</h3>
+          <p class="text-slate-600 text-base leading-relaxed">
+            We provide a professional service at all times, ensuring our clients receive high quality, cost-effective solutions for their distribution needs. Operating from our 24-hour Distribution Centres, our 50-vehicle strong fleet ranges from 7.5 tonne rigid vehicles up to 44 tonne articulated vehicles. We operate a mixed fleet of trailers that include curtain side, box, double deck and refrigerated. All our vehicles are equipped with onboard vehicle management systems and have satellite tracking. We are proud to be a premium provider of palletised freight distribution with a proven record of excellent KPI results for our performance.
+          </p>
+          <div class="grid sm:grid-cols-3 gap-4 mt-8">
+            <div class="expertise-stat rounded-2xl p-4">
+              <p class="text-2xl font-extrabold">50+</p>
+              <p class="text-xs uppercase tracking-[.2em] text-slate-300">Vehicles</p>
+            </div>
+            <div class="expertise-stat rounded-2xl p-4">
+              <p class="text-2xl font-extrabold">24/7</p>
+              <p class="text-xs uppercase tracking-[.2em] text-slate-300">Distribution</p>
+            </div>
+            <div class="expertise-stat rounded-2xl p-4">
+              <p class="text-2xl font-extrabold">KPI</p>
+              <p class="text-xs uppercase tracking-[.2em] text-slate-300">Excellence</p>
+            </div>
+          </div>
+        </div>
+        <div class="expertise-card p-8 sm:p-10 rounded-3xl animate-on-scroll">
+          <div class="service-icon w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-6"><i class="fas fa-truck"></i></div>
+          <h3 class="font-bold text-2xl mb-3">Road Transport</h3>
+          <p class="text-slate-100 text-base leading-relaxed">Nationwide trucking with reliable dispatch schedules, real-time tracking, and trained drivers for secure long-haul and regional movement.</p>
+          <div class="grid gap-3 mt-6">
+            <div class="expertise-tag px-4 py-3 rounded-xl text-sm">Curtain Side, Box, Double Deck, Refrigerated</div>
+            <div class="expertise-tag px-4 py-3 rounded-xl text-sm">Onboard Management + Satellite Tracking</div>
+            <div class="expertise-tag px-4 py-3 rounded-xl text-sm">Palletised Freight & Distribution</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why py-24 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-14 items-center">
+      <div>
+        <h2 class="text-4xl font-extrabold mb-8 animate-on-scroll">Why SinghRj Transport Stands Out</h2>
+        <div class="space-y-4">
+          <div class="why-line neon-line animate-on-scroll rounded-2xl p-5 flex gap-4"><div class="w-11 h-11 rounded-full bg-cyan-500/20 border border-cyan-300 flex items-center justify-center"><i class="fas fa-clock text-cyan-200"></i></div><div><h4 class="line-title text-lg font-bold mb-1">Fast Delivery</h4><p class="text-slate-300 text-sm">Optimized routing keeps cargo moving with minimal idle time.</p></div></div>
+          <div class="why-line neon-line animate-on-scroll rounded-2xl p-5 flex gap-4" style="transition-delay:.1s"><div class="w-11 h-11 rounded-full bg-cyan-500/20 border border-cyan-300 flex items-center justify-center"><i class="fas fa-shield-alt text-cyan-200"></i></div><div><h4 class="line-title text-lg font-bold mb-1">Secure Shipment</h4><p class="text-slate-300 text-sm">Handled with insurance and strong safety protocols.</p></div></div>
+          <div class="why-line neon-line animate-on-scroll rounded-2xl p-5 flex gap-4" style="transition-delay:.2s"><div class="w-11 h-11 rounded-full bg-cyan-500/20 border border-cyan-300 flex items-center justify-center"><i class="fas fa-map-marker-alt text-cyan-200"></i></div><div><h4 class="line-title text-lg font-bold mb-1">Real-time Tracking</h4><p class="text-slate-300 text-sm">Live updates from pickup to final handover.</p></div></div>
+          <div class="why-line neon-line animate-on-scroll rounded-2xl p-5 flex gap-4" style="transition-delay:.3s"><div class="w-11 h-11 rounded-full bg-cyan-500/20 border border-cyan-300 flex items-center justify-center"><i class="fas fa-tags text-cyan-200"></i></div><div><h4 class="line-title text-lg font-bold mb-1">Affordable Pricing</h4><p class="text-slate-300 text-sm">Flexible pricing models for every cargo volume.</p></div></div>
+        </div>
+      </div>
+      <div class="relative animate-on-scroll">
+        <img src="image/71609489.png" alt="Logistics center" class="rounded-3xl shadow-2xl w-full">
+        <div class="absolute -bottom-5 -left-5 sm:-left-6 bg-cyan-500 text-slate-950 p-6 rounded-2xl hidden sm:block"><p class="text-3xl font-extrabold">15+</p><p class="text-xs uppercase tracking-[.2em] font-bold">Years Experience</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" class="py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14 animate-on-scroll">
+        <h2 class="text-4xl font-extrabold">Simple 4-Step Process</h2>
+        <p class="text-slate-600 mt-4">Clear milestones, faster execution, and better shipment visibility.</p>
+      </div>
+      <div class="process-shell grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <article class="step-card rounded-2xl p-6 animate-on-scroll">
+          <div class="step-num flex items-center justify-center text-white font-extrabold mb-4">1</div>
+          <h3 class="font-bold text-lg mb-2">Book Shipment</h3>
+          <p class="text-slate-600 text-sm">Share route, cargo type, and preferred pickup window.</p>
+        </article>
+        <article class="step-card rounded-2xl p-6 animate-on-scroll" style="transition-delay:.1s">
+          <div class="step-num flex items-center justify-center text-white font-extrabold mb-4">2</div>
+          <h3 class="font-bold text-lg mb-2">Safe Pickup</h3>
+          <p class="text-slate-600 text-sm">Team verifies packaging, loads securely, and confirms dispatch.</p>
+        </article>
+        <article class="step-card rounded-2xl p-6 animate-on-scroll" style="transition-delay:.2s">
+          <div class="step-num flex items-center justify-center text-white font-extrabold mb-4">3</div>
+          <h3 class="font-bold text-lg mb-2">In Transit</h3>
+          <p class="text-slate-600 text-sm">Live status updates and checkpoint tracking during movement.</p>
+        </article>
+        <article class="step-card rounded-2xl p-6 animate-on-scroll" style="transition-delay:.3s">
+          <div class="step-num flex items-center justify-center text-white font-extrabold mb-4">4</div>
+          <h3 class="font-bold text-lg mb-2">Delivered</h3>
+          <p class="text-slate-600 text-sm">Final handover with proof of delivery and completion update.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="coverage" class="py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="coverage rounded-3xl p-7 sm:p-12 text-white">
+        <div class="grid lg:grid-cols-2 gap-10 items-center relative z-10">
+          <div class="animate-on-scroll">
+            <h2 class="text-4xl font-extrabold mb-4">Wider Coverage Area</h2>
+            <p class="text-blue-100 mb-6 text-lg">From Luton to major UK corridors, with Europe and global port connectivity under one service network.</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <span class="chip px-4 py-2 rounded-xl text-sm">London</span><span class="chip px-4 py-2 rounded-xl text-sm">Manchester</span><span class="chip px-4 py-2 rounded-xl text-sm">Birmingham</span><span class="chip px-4 py-2 rounded-xl text-sm">Luton</span><span class="chip px-4 py-2 rounded-xl text-sm">Leeds</span><span class="chip px-4 py-2 rounded-xl text-sm">Global Ports</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 animate-on-scroll">
+            <div class="bg-white/10 rounded-2xl p-6 border border-white/20"><p class="text-3xl font-extrabold">120+</p><p class="text-sm text-blue-100">UK Routes Covered</p></div>
+            <div class="bg-white/10 rounded-2xl p-6 border border-white/20"><p class="text-3xl font-extrabold">24/7</p><p class="text-sm text-blue-100">Live Tracking Support</p></div>
+            <div class="bg-white/10 rounded-2xl p-6 border border-white/20 col-span-2"><p class="text-3xl font-extrabold">98.6%</p><p class="text-sm text-blue-100">On-Time Delivery Performance</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12 animate-on-scroll"><h2 class="text-4xl font-extrabold">What Our Clients Say</h2><p class="text-slate-600 mt-3">Horizontal sliding testimonials with client images.</p></div>
+      <div class="test-wrap">
+        <div class="test-track pb-4" id="testimonials-track">
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"modern fleet friendly drivers five stars"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">ER</div><div><p class="font-bold">Elite Reviews</p><p class="text-xs text-slate-500">Local Guide - 155 reviews - 993 photos - a month ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Loaders/fork lift drivers were brilliant and nice guys. Office staff were good except for an Eastern European lady who has a serious attitude problem and so rude"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">MA</div><div><p class="font-bold">Martin Aiken</p><p class="text-xs text-slate-500">Local Guide - 116 reviews - 5 months ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Very quick unloading and friendly Warehouse staff 5 star service."</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">OP</div><div><p class="font-bold">Oleksandr Panasiuk</p><p class="text-xs text-slate-500">1 review - 2 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Very quick unloading and friendly Warehouse staff 5 star service"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">NL</div><div><p class="font-bold">nathan lawson</p><p class="text-xs text-slate-500">Local Guide - 10 reviews - 6 photos - 2 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Verey road warehouse is brilliant lovely staff very kind and helpful quick service!!! Thank you"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">JH</div><div><p class="font-bold">Jay Hal</p><p class="text-xs text-slate-500">2 reviews - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Slow reaction from staff.makes you think you are invisible."</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">FD</div><div><p class="font-bold">Florin D</p><p class="text-xs text-slate-500">Local Guide - 202 reviews - 309 photos - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"NOT TO BAD OF A COMPANY"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">CH</div><div><p class="font-bold">CHOOK</p><p class="text-xs text-slate-500">Local Guide - 72 reviews - 42 photos - edited 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"The best transport company in the world"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">BM</div><div><p class="font-bold">Ben Machado</p><p class="text-xs text-slate-500">2 reviews - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"It's a bit dated"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">MB</div><div><p class="font-bold">martyn broughton</p><p class="text-xs text-slate-500">Local Guide - 292 reviews - 94 photos - 3 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Fast and Nice."</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">CH</div><div><p class="font-bold">Costin Hemes</p><p class="text-xs text-slate-500">Local Guide - 12 reviews - 21 photos - 5 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Easy to deal with"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">DL</div><div><p class="font-bold">dennis lownds</p><p class="text-xs text-slate-500">Local Guide - 153 reviews - 121 photos - 5 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Excellent"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">CP</div><div><p class="font-bold">Cornel Pavalache</p><p class="text-xs text-slate-500">Local Guide - 86 reviews - 14 photos - 6 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Crap"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">MP</div><div><p class="font-bold">Matt Porter</p><p class="text-xs text-slate-500">Local Guide - 440 reviews - 5 photos - 9 years ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Great company, you have to enter from the back from the street, very long waiting time even if you have a booking"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">DB</div><div><p class="font-bold">Daniel Buzner</p><p class="text-xs text-slate-500">Local Guide - 27 reviews - 7 photos - 6 months ago</p></div></div></article>
+  <article class="test-card rounded-2xl p-6"><p class="italic text-slate-600 mb-4">"Fast unloading, good team"</p><div class="flex items-center gap-3"><div class="avatar bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">NP</div><div><p class="font-bold">Nihad Pido</p><p class="text-xs text-slate-500">Local Guide - 118 reviews - 178 photos - 3 years ago</p></div></div></article>
+</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="cta rounded-3xl p-8 sm:p-14 text-white text-center animate-on-scroll">
+        <div class="relative z-10">
+          <span class="inline-block px-4 py-2 rounded-full bg-white/15 border border-white/25 text-xs font-bold uppercase tracking-[.2em] mb-4">Start Today</span>
+          <h2 class="text-3xl sm:text-5xl font-extrabold mb-5">Ready to Move Your Cargo?</h2>
+          <p class="text-base sm:text-xl text-cyan-100 mb-9 max-w-3xl mx-auto">Join businesses across the UK trusting SinghRj for daily dispatch and dependable road freight handling.</p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#contact" class="bg-white text-sky-700 px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-100">Book Shipment Now</a>
+            <a href="tel:+447438282122" class="bg-slate-900/45 backdrop-blur border border-cyan-200/40 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-900/65">Call Expert: +44 7438 282122</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact" class="bg-slate-950 text-white pt-20 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div><h2 class="text-2xl font-bold mb-6">SINGHRJ <span class="text-cyan-400">TRANSPORT</span></h2><p class="text-slate-400 text-sm leading-relaxed mb-6">Providing high-standard logistics and transportation services globally. Professionalism and punctuality are our core values.</p></div>
+        <div><h4 class="text-lg font-bold mb-6 border-b border-slate-800 pb-2">Quick Links</h4><ul class="space-y-4 text-slate-400"><li><a href="#">Home</a></li><li><a href="#services">Services</a></li><li><a href="#process">Our Process</a></li><li><a href="#coverage">Coverage</a></li></ul></div>
+        <div><h4 class="text-lg font-bold mb-6 border-b border-slate-800 pb-2">Our Services</h4><ul class="space-y-4 text-slate-400"><li>Road Transport</li></ul></div>
+        <div><h4 class="text-lg font-bold mb-6 border-b border-slate-800 pb-2">Contact Info</h4><ul class="space-y-4 text-slate-400"><li class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-sky-500 mt-1"></i><span>60 Applecroft road, Luton (LU2 8BD) UK</span></li><li class="flex items-center gap-3"><i class="fas fa-phone-alt text-sky-500"></i><a href="tel:+447438282122">+44 7438 282122</a></li><li class="flex items-center gap-3"><i class="fas fa-envelope text-sky-500"></i><a href="mailto:info@singhrjtransport.com">info@singhrjtransport.com</a></li></ul></div>
+      </div>
+      <div class="border-t border-slate-800 pt-8 text-center text-slate-500 text-sm"><p>&copy; 2026 SinghRj Transport. All rights reserved.</p></div>
+    </div>
+  </footer>
+`;
+
+export default function Home() {
+  useEffect(() => {
+    const cleanups = [];
+    cleanups.push(initScrollAnimations());
+    cleanups.push(initWhyAnimations());
+    cleanups.push(initTestimonialsTrack());
+    cleanups.push(initSidebar());
+    return () => { cleanups.forEach((fn) => { if (typeof fn === 'function') fn(); }); };
+  }, []);
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div dangerouslySetInnerHTML={{ __html: markup }} />
+    </>
+  );
+}
+
+
+
+
+
+
+
+
+
+
