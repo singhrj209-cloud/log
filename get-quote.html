@@ -292,7 +292,7 @@
 
     async function loadPricing(){
       try{
-        const res = await fetch('http://localhost:5000/api/pricing');
+        const res = await fetch('https://backend-w0at.onrender.com/api/pricing');
         if(res.ok){ pricingConfig = await res.json(); }
       }catch(err){
         pricingConfig = null;
@@ -349,7 +349,7 @@
         pickupDate:new Date().toISOString().slice(0,10)
       };
       try{
-        await fetch('http://localhost:5000/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        await fetch('https://backend-w0at.onrender.com/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         alert('Quote request submitted successfully. Our team will contact you shortly.');
       }catch(err){
         alert('Failed to submit quote. Please try again.');
@@ -368,6 +368,7 @@
     if(sidebar){sidebar.querySelectorAll('a').forEach((a)=>a.addEventListener('click',closeSidebar));}  </script>
 </body>
 </html>
+
 
 
 

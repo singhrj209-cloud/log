@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://backend-w0at.onrender.com/api';
 
 export const initScrollAnimations = (threshold = 0.12) => {
   const observer = new IntersectionObserver(
@@ -264,3 +264,4 @@ export const initShipmentTracking = () => {
     });
   });
 };
+
